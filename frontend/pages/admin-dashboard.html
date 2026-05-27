@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | AquaShop</title>
+  <meta name="description" content="AquaShop Admin Dashboard - Manage products, track orders, view analytics, and control user accounts." />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/global.css"/>
+  <link rel="stylesheet" href="../css/pages/admin-dashboard.css"/>
+</head>
+<body>
+  <!-- ══════════════════════════════
+     ADMIN NAVBAR
+══════════════════════════════ -->
+  <nav class="navbar admin-navbar">
+    <a class="nav-logo" href="home.html">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+        </svg>
+      </div>
+      <span class="nav-logo-name">AquaShop <span class="admin-badge-logo">Admin</span></span>
+    </a>
+
+
+
+    <div class="nav-icons">
+      <button class="nav-icon-btn" title="View Store" onclick="window.location.href='home.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      </button>
+
+      <div class="admin-profile-btn" onclick="openAdminSelfEdit()" style="cursor: pointer;">
+        <img id="admin-top-avatar" src="https://ui-avatars.com/api/?name=Admin&background=00BFCF&color=fff" alt="Admin" />
+      </div>
+      <button class="hamburger" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════
+     ADMIN CONTENT
+══════════════════════════════ -->
+  <main class="admin-wrapper">
+    <div class="admin-container">
+      
+      <!-- Admin Sidebar -->
+      <aside class="admin-sidebar">
+        <!-- Navigation Menu -->
+        <nav class="admin-menu">
+          <button class="admin-menu-item active" data-tab="overview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Overview
+          </button>
+          <button class="admin-menu-item" data-tab="products">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+            Products
+          </button>
+          <button class="admin-menu-item" data-tab="orders">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 16.08V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 2 8v8.08a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 20 16.08z"></path><polyline points="12 22 12 12"></polyline><polyline points="12 12 21.5 6.5"></polyline><polyline points="2.5 6.5 12 12"></polyline></svg>
+            Orders
+          </button>
+          <button class="admin-menu-item" data-tab="users">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Users
+          </button>
+          <button class="admin-menu-item" data-tab="notifications" style="display: flex; align-items: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            Notifications
+            <span id="sidebar-admin-notif-count" style="display:none; background: #ff4d4f; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; margin-left: auto; font-weight: bold; align-items: center; justify-content: center; line-height: 1;"></span>
+          </button>
+          <button class="admin-menu-item" data-tab="subscribers" style="display: flex; align-items: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            Subscribers
+          </button>
+          
+          <div style="flex-grow: 1;"></div>
+
+          <button class="admin-menu-item logout" onclick="window.location.href='dashboard.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Exit Admin
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Main Content Area -->
+      <section class="admin-main">
+        
+        <!-- OVERVIEW TAB -->
+        <div class="admin-tab active" id="tab-overview">
+          <div class="admin-header">
+            <div>
+              <h2>Dashboard Overview</h2>
+              <p>Welcome back, Admin. Here's what's happening today.</p>
+            </div>
+          </div>
+          
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon" style="color: #00BFCF; background: rgba(0, 191, 207, 0.1);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div>
+              <div class="stat-details">
+                <h3>Total Revenue</h3>
+                <p class="stat-value" id="dash-total-revenue">$0.00</p>
+                <span class="stat-trend neutral" id="dash-revenue-trend">$0.00 earned today</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="color: #f39c12; background: rgba(243, 156, 18, 0.1);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg></div>
+              <div class="stat-details">
+                <h3>Total Orders</h3>
+                <p class="stat-value" id="dash-total-orders">0</p>
+                <span class="stat-trend neutral" id="dash-orders-trend">0 placed today</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="color: #8e44ad; background: rgba(142, 68, 173, 0.1);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+              <div class="stat-details">
+                <h3>Active Users</h3>
+                <p class="stat-value" id="dash-total-users">0</p>
+                <span class="stat-trend neutral" id="dash-users-new-today">0 new today</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="color: #e74c3c; background: rgba(231, 76, 60, 0.1);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg></div>
+              <div class="stat-details">
+                <h3>Products</h3>
+                <p class="stat-value" id="dash-total-products">0</p>
+                <span class="stat-trend neutral" id="dash-products-out-of-stock">0 out of stock</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-section">
+            <div class="section-header">
+              <h3>Recent Orders</h3>
+              <a href="#" class="view-all" onclick="document.querySelector('[data-tab=\'orders\']').click()">View All →</a>
+            </div>
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width: 60px; text-align: center;">S.No</th>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Quantity</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-orders-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRODUCTS TAB -->
+        <div class="admin-tab" id="tab-products">
+          <div class="admin-header">
+            <div>
+              <h2>Products Management</h2>
+              <p>Add, edit or delete products from your store inventory.</p>
+            </div>
+            <button class="btn-primary" onclick="openAddProductModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add Product</button>
+          </div>
+          <div class="admin-section">
+            <div class="section-header">
+              <h3>All Products <span id="products-count-badge" style="font-size:0.85rem; color:#00BFCF; font-weight:600; margin-left:6px;"></span></h3>
+              <span style="font-size:0.88rem; color:#95a5a6;">Manage your store inventory</span>
+            </div>
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="products-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ORDERS TAB -->
+        <div class="admin-tab" id="tab-orders">
+          <div class="admin-header">
+            <div>
+              <h2>Order Management</h2>
+              <p>Process and track all customer orders.</p>
+            </div>
+          </div>
+          
+          <!-- Orders Search & Filter Controls -->
+          <div class="orders-filter-bar" style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(0, 191, 207, 0.1); padding: 15px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0, 150, 170, 0.04);">
+            <div style="flex-grow: 1; display: flex; align-items: center; background: #fafcfc; border: 1.5px solid #e2e8ea; border-radius: 10px; padding: 6px 12px; gap: 8px; transition: all 0.25s;" class="search-input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#8EAAB2" stroke-width="2" width="18" height="18" style="flex-shrink:0;">
+                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="order-search-id" placeholder="Enter Order ID (e.g. ORD-8762)..." onkeydown="if(event.key === 'Enter') filterOrdersAdmin()" style="border: none; background: transparent; width: 100%; outline: none; font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: #1A2E35;" />
+            </div>
+            
+            <!-- Custom Order Status Dropdown -->
+            <div class="custom-dropdown" id="order-status-dropdown">
+              <div class="dropdown-selected">
+                <span class="selected-text">All Statuses</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropdown-arrow"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+              <div class="dropdown-options">
+                <div class="dropdown-option selected" data-value="all">All Statuses</div>
+                <div class="dropdown-option" data-value="Delivered">Delivered</div>
+                <div class="dropdown-option" data-value="Cancelled">Cancelled</div>
+                <div class="dropdown-option" data-value="In Transit">In Transit</div>
+              </div>
+              <select id="order-filter-status" class="sort-select">
+                <option value="all">All Statuses</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="In Transit">In Transit</option>
+              </select>
+            </div>
+
+            <button onclick="filterOrdersAdmin()" class="btn-primary" style="padding: 10px 24px; box-shadow: 0 4px 10px rgba(0, 191, 207, 0.2); font-size: 0.9rem; flex-shrink: 0;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              Search
+            </button>
+          </div>
+
+          <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width: 60px; text-align: center;">S.No</th>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Quantity</th>
+                    <th>Payment Method</th>
+                    <th style="text-align: center;">Order Delivered</th>
+                    <th style="text-align: center;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="all-orders-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+        </div>
+
+        <!-- USERS TAB -->
+        <div class="admin-tab" id="tab-users">
+          <div class="admin-header">
+            <div>
+              <h2>User Management</h2>
+              <p>View and manage registered customers and admins.</p>
+            </div>
+          </div>
+          <div class="admin-section">
+            <div class="section-header">
+              <h3>Registered Users <span id="users-count-badge" style="font-size:0.85rem; color:#00BFCF; font-weight:600; margin-left:6px;"></span></h3>
+            </div>
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width: 60px; text-align: center;">S.No</th>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="users-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS TAB -->
+        <div class="admin-tab" id="tab-notifications">
+          <div class="admin-header">
+            <div>
+              <h2>Notification Management</h2>
+              <p>Broadcast or send direct custom notifications to your registered customers.</p>
+            </div>
+          </div>
+          
+          <div class="notif-grid">
+            <!-- Left Side: Send Notification Card -->
+            <div class="notif-card">
+              <h3 style="font-family: 'Nunito', sans-serif; font-size: 1.2rem; color: #1A2E35; margin-bottom: 20px; border-bottom: 1px solid #f1f2f6; padding-bottom: 12px;">Send New Alert</h3>
+              <form id="admin-notif-form" onsubmit="sendAdminNotification(event)">
+                <div class="notif-form-group">
+                  <label for="notif-recipient-select">Recipient Customer</label>
+                  <select id="notif-recipient-select" required>
+                    <option value="all">All Users / Customers</option>
+                    <!-- Populated dynamically via JS -->
+                  </select>
+                </div>
+                <div class="notif-form-group">
+                  <label for="notif-message-text">Message Content</label>
+                  <textarea id="notif-message-text" placeholder="Type your notification message here..." required></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                  Send Notification
+                </button>
+              </form>
+            </div>
+
+            <!-- Right Side: Admin Alerts / System Notifications list -->
+            <div class="admin-section" style="margin-top: 0; flex-grow: 1;">
+              <div class="section-header">
+                <h3>Admin Alerts</h3>
+                <span id="notif-history-count" style="font-size:0.85rem; color:#00BFCF; font-weight:600; margin-left:6px;">(0)</span>
+              </div>
+              <div class="table-container">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 60px; text-align: center;">S.No</th>
+                      <th>Alert Notification Message</th>
+                      <th>Received Date</th>
+                      <th style="text-align: center;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="notif-history-body">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBSCRIBERS TAB -->
+        <div class="admin-tab" id="tab-subscribers">
+          <div class="admin-header">
+            <div>
+              <h2>Newsletter Subscribers</h2>
+              <p>View and manage users who subscribed to the store newsletter.</p>
+            </div>
+          </div>
+          <div class="admin-section">
+            <div class="section-header">
+              <h3>Active Subscribers <span id="subscribers-count-badge" style="font-size:0.85rem; color:#00BFCF; font-weight:600; margin-left:6px;">(0)</span></h3>
+            </div>
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width: 80px; text-align: center;">S.No</th>
+                    <th>Email Address</th>
+                    <th style="width: 120px; text-align: center;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="subscribers-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- ══════════════════════════════
+       ADD / EDIT PRODUCT MODAL
+  ══════════════════════════════ -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="product-modal-title">Add New Product</h3>
+        <button class="modal-close" onclick="closeModal('product-modal')" title="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <form class="modal-form" id="product-form" onsubmit="saveProduct(event)">
+        <input type="hidden" id="product-modal-id">
+
+        <!-- Row 1: Name -->
+        <div class="form-group full-width">
+          <label for="field-name">Product Name <span class="req">*</span></label>
+          <input type="text" id="field-name" placeholder="e.g. Premium Wireless Headphones" required>
+        </div>
+
+        <!-- Row 2: Category & Brand -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="field-category">Category <span class="req">*</span></label>
+            <select id="field-category" required>
+              <option value="">Select category</option>
+              <option value="electronics">Electronics</option>
+              <option value="audio">Audio</option>
+              <option value="wearables">Wearables</option>
+              <option value="mobile">Mobile</option>
+              <option value="accessories">Accessories</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="field-brand">Brand</label>
+            <input type="text" id="field-brand" placeholder="e.g. Sony, Apple">
+          </div>
+        </div>
+
+        <!-- Row 3: Price & Original Price -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="field-price">Price ($) <span class="req">*</span></label>
+            <input type="number" id="field-price" step="0.01" min="0" placeholder="0.00" required>
+          </div>
+          <div class="form-group">
+            <label for="field-original">Original Price ($)</label>
+            <input type="number" id="field-original" step="0.01" min="0" placeholder="Leave blank if no discount">
+          </div>
+        </div>
+
+        <!-- Row 4: Discount & Stock -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="field-discount">Discount (%)</label>
+            <input type="number" id="field-discount" min="0" max="100" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label for="field-stock">Stock Quantity <span class="req">*</span></label>
+            <input type="number" id="field-stock" min="0" placeholder="e.g. 100" required>
+          </div>
+        </div>
+
+        <!-- Row 5: Rating & Reviews -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="field-rating">Rating (1–5)</label>
+            <input type="number" id="field-rating" step="0.1" min="1" max="5" placeholder="4.5">
+          </div>
+          <div class="form-group">
+            <label for="field-reviews">Review Count</label>
+            <input type="number" id="field-reviews" min="0" placeholder="0">
+          </div>
+        </div>
+
+        <!-- Row 6: Image URL -->
+        <div class="form-group full-width">
+          <label for="field-img">Product Image URL</label>
+          <input type="url" id="field-img" placeholder="https://images.unsplash.com/..." oninput="previewImage(this.value)">
+        </div>
+
+        <!-- Image preview -->
+        <div class="img-preview-wrap">
+          <img id="img-preview" src="" alt="Preview" style="display:none;">
+          <span id="img-placeholder" class="img-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
+              <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21,15 16,10 5,21"/>
+            </svg>
+            Image preview
+          </span>
+        </div>
+
+        <!-- Actions -->
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeModal('product-modal')">Cancel</button>
+          <button type="submit" class="btn-primary" id="modal-submit-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add Product
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- ══════════════════════════════
+       DELETE CONFIRMATION MODAL
+  ══════════════════════════════ -->
+  <div class="modal-overlay" id="delete-confirm-modal">
+    <div class="modal-box delete-confirm-box">
+      <div class="delete-confirm-icon-wrap">
+        <div class="delete-confirm-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="32" height="32">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+      </div>
+      
+      <h3 class="delete-confirm-title" id="delete-modal-title">Delete Product?</h3>
+      <p class="delete-confirm-desc" id="delete-modal-desc">You are about to delete this product. It will also be removed from the shop catalog. This action cannot be undone.</p>
+      
+      <div class="delete-confirm-preview" id="delete-confirm-preview-box">
+        <img id="delete-confirm-img" src="" alt="Product Image" onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&q=60'">
+        <div class="delete-confirm-details">
+          <span id="delete-confirm-item-name">Product Name</span>
+          <span id="delete-confirm-item-price">$0.00</span>
+        </div>
+      </div>
+
+      <div class="delete-confirm-actions">
+        <button type="button" class="btn-cancel" onclick="closeModal('delete-confirm-modal')">Cancel</button>
+        <button type="button" class="btn-delete-confirm" id="btn-confirm-delete">Delete Product</button>
+      </div>
+    </div>
+  </div>
+  <!-- ══════════════════════════════
+       EDIT USER MODAL
+  ══════════════════════════════ -->
+  <div class="modal-overlay" id="user-edit-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Edit User Details</h3>
+        <button class="modal-close" onclick="closeModal('user-edit-modal')" title="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <form class="modal-form" id="user-edit-form" onsubmit="saveUserEdit(event)">
+        <input type="hidden" id="edit-user-original-email">
+
+        <!-- Row 1: First Name & Last Name -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-user-fname">First Name <span class="req">*</span></label>
+            <input type="text" id="edit-user-fname" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-user-lname">Last Name <span class="req">*</span></label>
+            <input type="text" id="edit-user-lname" required>
+          </div>
+        </div>
+
+        <!-- Row 2: Email -->
+        <div class="form-group full-width">
+          <label for="edit-user-email">Email Address <span class="req">*</span></label>
+          <input type="email" id="edit-user-email" required>
+        </div>
+
+        <!-- Row 3: Phone & Role -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-user-phone">Phone</label>
+            <input type="text" id="edit-user-phone">
+          </div>
+          <div class="form-group">
+            <label for="edit-user-role">Role</label>
+            <select id="edit-user-role" disabled>
+              <option value="Admin">Admin</option>
+              <option value="Customer">Customer</option>
+            </select>
+            <small style="color: #7f8c8d; font-size: 0.75rem; margin-top: 4px; display: block;">Role is determined by email system policy.</small>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeModal('user-edit-modal')">Cancel</button>
+          <button type="submit" class="btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="sidebar-backdrop" onclick="closeMobileMenu()"></div>
+  <script src="../js/api.js"></script>
+  <script src="../js/pages/admin-dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AquaShop – Shop</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/pages/shop.css" />
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════
+     NAVBAR
+══════════════════════════════ -->
+  <nav class="navbar">
+    <a class="nav-logo" href="home.html">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+        </svg>
+      </div>
+      <span class="nav-logo-name">AquaShop</span>
+    </a>
+
+    <ul class="nav-links">
+      <li class="mobile-search-li">
+        <div class="nav-search mobile-search">
+          <span class="search-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
+          </span>
+          <input type="text" placeholder="Search products..." oninput="onSearch(this.value)" />
+        </div>
+      </li>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="shop.html" class="active">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+
+    <div class="nav-search desktop-search">
+      <span class="search-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+      </span>
+      <input type="text" placeholder="Search products..." oninput="onSearch(this.value)" />
+    </div>
+
+    <div class="nav-icons">
+      <button class="nav-icon-btn" onclick="window.location.href='wishlist.html'" title="Wishlist">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+        <span class="nav-badge" id="wish-count">0</span>
+      </button>
+      <button class="nav-icon-btn" onclick="window.location.href='cart.html'" title="Cart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+        </svg>
+        <span class="nav-badge" id="cart-count">0</span>
+      </button>
+      <button class="nav-icon-btn" onclick="window.location.href='dashboard.html'" title="Account">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="7" r="4" />
+          <path d="M4 21v-1a8 8 0 0 1 16 0v1" />
+        </svg>
+      </button>
+      <button class="hamburger" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- aqua stripe -->
+  <div class="nav-stripe"></div>
+
+  <!-- ══════════════════════════════
+     SHOP WRAPPER
+══════════════════════════════ -->
+  <div class="shop-wrapper">
+
+    <!-- Top Bar -->
+    <div class="shop-topbar">
+      <p class="result-text">Showing <strong id="result-count">0</strong> products</p>
+      <div class="custom-dropdown" id="sort-dropdown">
+        <div class="dropdown-selected">
+          <span class="selected-text">Sort by: Featured</span>
+          <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="dropdown-options">
+          <div class="dropdown-option selected" data-value="featured">Sort by: Featured</div>
+          <div class="dropdown-option" data-value="price-low">Price: Low to High</div>
+          <div class="dropdown-option" data-value="price-high">Price: High to Low</div>
+          <div class="dropdown-option" data-value="rating">Top Rated</div>
+          <div class="dropdown-option" data-value="newest">Newest First</div>
+        </div>
+        <select class="sort-select" id="sort-select" onchange="onSortChange(this.value)">
+          <option value="featured">Sort by: Featured</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="rating">Top Rated</option>
+          <option value="newest">Newest First</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="shop-body">
+
+      <!-- ══════════════════════════════
+         FILTER SIDEBAR
+    ══════════════════════════════ -->
+      <aside class="sidebar">
+        <h3>Filters</h3>
+
+        <!-- Categories -->
+        <div class="filter-group">
+          <h4>Categories</h4>
+          <label class="check-item">
+            <input type="checkbox" id="cat-all" checked onchange="onCategoryChange(this,'all')" />
+            <span class="custom-check">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg>
+            </span>
+            <span>All Products</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" class="cat-check" data-cat="electronics"
+              onchange="onCategoryChange(this,'electronics')" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <span>Electronics</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" class="cat-check" data-cat="wearables"
+              onchange="onCategoryChange(this,'wearables')" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <span>Wearables</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" class="cat-check" data-cat="audio" onchange="onCategoryChange(this,'audio')" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <span>Audio</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" class="cat-check" data-cat="mobile" onchange="onCategoryChange(this,'mobile')" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <span>Mobile</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" class="cat-check" data-cat="accessories"
+              onchange="onCategoryChange(this,'accessories')" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <span>Accessories</span>
+          </label>
+        </div>
+
+        <!-- Price Range -->
+        <div class="filter-group">
+          <h4>Price Range</h4>
+          <input type="range" class="price-slider" id="price-slider" min="0" max="1500" value="1500" step="10"
+            oninput="onPriceChange(this.value)" />
+          <div class="price-labels">
+            <span>$0</span>
+            <span id="price-max-label">$1500</span>
+          </div>
+        </div>
+
+        <!-- Brand -->
+        <div class="filter-group">
+          <h4>Brand</h4>
+          <label class="check-item">
+            <input type="checkbox" onchange="onBrandChange(this,'Apple')" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <span>Apple</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" onchange="onBrandChange(this,'Samsung')" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <span>Samsung</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" onchange="onBrandChange(this,'Sony')" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <span>Sony</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" onchange="onBrandChange(this,'Dell')" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <span>Dell</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" onchange="onBrandChange(this,'LG')" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <span>LG</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" onchange="onBrandChange(this,'Bose')" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <span>Bose</span>
+          </label>
+        </div>
+
+        <!-- Rating -->
+        <div class="filter-group">
+          <h4>Rating</h4>
+          <label class="check-item rating-item">
+            <input type="checkbox" class="rating-check" onchange="onRatingChange(this, 5)" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <div class="star-row">
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+            </div>
+            <span class="r-label">5 ★ & up</span>
+          </label>
+          <label class="check-item rating-item">
+            <input type="checkbox" class="rating-check" onchange="onRatingChange(this, 4)" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <div class="star-row">
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg class="empty" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+            </div>
+            <span class="r-label">4 ★ & up</span>
+          </label>
+          <label class="check-item rating-item">
+            <input type="checkbox" class="rating-check" onchange="onRatingChange(this, 3)" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <div class="star-row">
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg class="empty" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg class="empty" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+            </div>
+            <span class="r-label">3 ★ & up</span>
+          </label>
+          <label class="check-item rating-item">
+            <input type="checkbox" class="rating-check" onchange="onRatingChange(this, 2)" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <div class="star-row">
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg class="empty" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg class="empty" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg class="empty" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+            </div>
+            <span class="r-label">2 ★ & up</span>
+          </label>
+          <label class="check-item rating-item">
+            <input type="checkbox" class="rating-check" onchange="onRatingChange(this, 1)" />
+            <span class="custom-check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg></span>
+            <div class="star-row">
+              <svg viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg class="empty" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg class="empty" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg class="empty" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+              <svg class="empty" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+              </svg>
+            </div>
+            <span class="r-label">1 ★ & up</span>
+          </label>
+        </div>
+
+        <button class="btn-apply" onclick="applyFilters()">Apply Filters</button>
+        <button class="btn-reset" onclick="resetFilters()">Reset Filters</button>
+      </aside>
+
+      <!-- ══════════════════════════════
+         PRODUCTS SECTION
+    ══════════════════════════════ -->
+      <div class="products-section">
+        <div class="products-grid" id="products-grid">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+     FOOTER
+══════════════════════════════ -->
+  <footer class="global-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="f-logo">AquaShop</div>
+        <p>Your trusted destination for premium quality products at affordable prices. Shop with confidence and enjoy
+          amazing deals!</p>
+        <div class="social-icons">
+          <a class="social-btn" href="https://facebook.com" target="_blank" title="Facebook">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+            </svg>
+          </a>
+          <a class="social-btn" href="https://twitter.com" target="_blank" title="Twitter">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" />
+            </svg>
+          </a>
+          <a class="social-btn" href="https://instagram.com" target="_blank" title="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="20" rx="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+            </svg>
+          </a>
+          <a class="social-btn" href="https://youtube.com" target="_blank" title="YouTube">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
+              <polygon points="9.75,15.02 15.5,12 9.75,8.98 9.75,15.02" fill="white" />
+            </svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="shop.html">Shop All Products</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="order-tracking.html">Track Order</a></li>
+          <li><a href="wishlist.html">Wishlist</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Customer Service</h4>
+        <ul>
+          <li><a href="contact.html">Help Center</a></li>
+          <li><a href="order-tracking.html">Track Your Order</a></li>
+          <li><a href="cart.html">Shopping Cart</a></li>
+          <li><a href="checkout.html">Checkout</a></li>
+          <li><a href="contact.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact Us</h4>
+        <div class="contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          <span>123 Shopping Street, New York, NY 10001</span>
+        </div>
+        <div class="contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.09 6.09l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+          </svg>
+          <span>+1 (555) 123-4567</span>
+        </div>
+        <div class="contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="3" />
+            <path d="M2 7l10 7 10-7" />
+          </svg>
+          <span>support@aquashop.com</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 AquaShop. All rights reserved. &nbsp;|&nbsp;
+      <a href="#">Privacy Policy</a> &nbsp;|&nbsp;
+      <a href="#">Terms of Service</a>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="../js/api.js"></script>
+  <script src="../js/pages/shop.js"></script>
+
+</body>
+
+</html>

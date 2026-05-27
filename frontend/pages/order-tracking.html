@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track Your Order | AquaShop</title>
+  <meta name="description"
+    content="Track your AquaShop order in real time. View shipping status, estimated delivery date, and live tracking updates." />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/pages/order-tracking.css?v=1.3" />
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════
+     NAVBAR
+══════════════════════════════ -->
+  <nav class="navbar">
+    <a class="nav-logo" href="home.html">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+        </svg>
+      </div>
+      <span class="nav-logo-name">AquaShop</span>
+    </a>
+
+    <ul class="nav-links">
+      <li class="mobile-search-li">
+        <div class="nav-search mobile-search">
+          <span class="search-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
+          </span>
+          <input type="text" placeholder="Search products..."
+            onkeydown="if(event.key==='Enter') window.location.href='shop.html?search='+encodeURIComponent(this.value)" />
+        </div>
+      </li>
+      <li><a href="home.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+
+    <div class="nav-search desktop-search">
+      <span class="search-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+      </span>
+      <input type="text" placeholder="Search products..."
+        onkeydown="if(event.key==='Enter') window.location.href='shop.html?search='+encodeURIComponent(this.value)" />
+    </div>
+
+    <div class="nav-icons">
+      <button class="nav-icon-btn" onclick="window.location.href='wishlist.html'" title="Wishlist">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+        <span class="nav-badge" id="wish-count">0</span>
+      </button>
+      <button class="nav-icon-btn" onclick="window.location.href='cart.html'" title="Cart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+        </svg>
+        <span class="nav-badge" id="cart-count">0</span>
+      </button>
+      <button class="nav-icon-btn" onclick="window.location.href='dashboard.html'" title="Account">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="7" r="4" />
+          <path d="M4 21v-1a8 8 0 0 1 16 0v1" />
+        </svg>
+      </button>
+      <button class="hamburger" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════
+     PAGE HEADER
+══════════════════════════════ -->
+  <header class="track-header">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="home.html">Home</a>
+        <span class="bc-sep">/</span>
+        <span>Track Order</span>
+      </div>
+      <h1>Track Your Order</h1>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════
+     MAIN CONTENT
+══════════════════════════════ -->
+  <main class="track-main">
+    <div class="container track-grid">
+
+      <!-- ── LEFT COLUMN ── -->
+      <div class="track-left">
+
+        <!-- Order Info Card -->
+        <div class="glass-card order-card">
+          <div class="order-top">
+            <div>
+              <h2 class="order-id">Order #ORD-7654</h2>
+              <p class="order-date">Placed on <span id="track-order-date">April 28, 2026</span></p>
+            </div>
+            <span class="status-badge" id="track-status-badge">In Transit</span>
+          </div>
+
+          <div id="track-products-container">
+            <div class="order-product">
+              <div class="prod-img-wrap">
+                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=200&fit=crop&crop=center"
+                  alt="Smart Watch Series 7" />
+              </div>
+              <div class="prod-details">
+                <h3>Smart Watch Series 7 - Fitness & Health Tracker</h3>
+                <p class="prod-qty">Quantity: 1</p>
+                <p class="prod-price">$299.99</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tracking Progress Card -->
+        <div class="glass-card tracking-card">
+          <h2 class="section-title">Tracking Progress</h2>
+
+          <div class="timeline">
+
+            <!-- Step 1: Order Placed ✅ -->
+            <div class="step completed">
+              <div class="step-col">
+                <div class="step-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <div class="step-line"></div>
+              </div>
+              <div class="step-body">
+                <h4>Order Placed</h4>
+                <p>Your order has been confirmed</p>
+                <span class="step-time" id="track-step-placed">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  April 28, 2026 &ndash; 10:30 AM
+                </span>
+              </div>
+              <div class="step-status">
+                <svg class="check-done" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="9 12 11 14 15 10" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Step 2: Packed ✅ -->
+            <div class="step completed">
+              <div class="step-col">
+                <div class="step-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                    <line x1="12" y1="22.08" x2="12" y2="12" />
+                  </svg>
+                </div>
+                <div class="step-line"></div>
+              </div>
+              <div class="step-body">
+                <h4>Packed</h4>
+                <p>Your order has been packed</p>
+                <span class="step-time" id="track-step-packed">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  April 29, 2026 &ndash; 02:15 PM
+                </span>
+              </div>
+              <div class="step-status">
+                <svg class="check-done" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="9 12 11 14 15 10" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Step 3: Shipped ✅ -->
+            <div class="step completed">
+              <div class="step-col">
+                <div class="step-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <rect x="1" y="3" width="15" height="13" />
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                    <circle cx="5.5" cy="18.5" r="2.5" />
+                    <circle cx="18.5" cy="18.5" r="2.5" />
+                  </svg>
+                </div>
+                <div class="step-line"></div>
+              </div>
+              <div class="step-body">
+                <h4>Shipped</h4>
+                <p>Your order is on the way</p>
+                <span class="step-time" id="track-step-shipped">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  April 30, 2026 &ndash; 09:45 AM
+                </span>
+              </div>
+              <div class="step-status">
+                <svg class="check-done" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="9 12 11 14 15 10" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Step 4: Out for Delivery ⏳ -->
+            <div class="step pending">
+              <div class="step-col">
+                <div class="step-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </div>
+                <div class="step-line"></div>
+              </div>
+              <div class="step-body">
+                <h4>Out for Delivery</h4>
+                <p>Your order is out for delivery</p>
+                <span class="step-time" id="track-timeline-expected">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  Expected: May 5, 2026
+                </span>
+              </div>
+              <div class="step-status"></div>
+            </div>
+
+            <!-- Step 5: Delivered ⏳ (last — no line) -->
+            <div class="step pending last">
+              <div class="step-col">
+                <div class="step-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                  </svg>
+                </div>
+              </div>
+              <div class="step-body">
+                <h4>Delivered</h4>
+                <p>Order successfully delivered</p>
+                <span class="step-time pending-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  Pending
+                </span>
+              </div>
+              <div class="step-status"></div>
+            </div>
+
+          </div><!-- /timeline -->
+        </div><!-- /tracking-card -->
+
+        <!-- Estimated Delivery Banner -->
+        <div class="est-delivery-banner">
+          <div class="est-text">
+            <p class="est-label">Estimated Delivery</p>
+            <p class="est-date" id="track-est-date">May 5, 2026</p>
+          </div>
+          <div class="est-truck">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13" />
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+              <circle cx="5.5" cy="18.5" r="2.5" />
+              <circle cx="18.5" cy="18.5" r="2.5" />
+            </svg>
+          </div>
+        </div>
+
+      </div><!-- /track-left -->
+
+      <!-- ── RIGHT SIDEBAR ── -->
+      <aside class="track-right">
+
+        <!-- Delivery Address -->
+        <div class="glass-card side-card">
+          <h3 class="side-title">Delivery Address</h3>
+          <div class="addr-row">
+            <span class="side-icon aqua-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </span>
+            <div>
+              <p class="addr-name" id="track-addr-name">John Doe</p>
+              <p class="addr-line" id="track-addr-street">123 Main Street</p>
+              <p class="addr-line" id="track-addr-city-state-zip">New York, NY 10001</p>
+            </div>
+          </div>
+          <div class="addr-row">
+            <span class="side-icon aqua-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.09 6.09l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+            </span>
+            <p class="addr-phone" id="track-addr-phone">+1 (555) 123-4567</p>
+          </div>
+        </div>
+
+        <!-- Payment Information -->
+        <div class="glass-card side-card">
+          <h3 class="side-title">Payment Information</h3>
+          <div class="payment-info-box">
+            <div class="pay-row" style="margin-bottom: 12px;">
+              <p class="pay-label">Payment Method</p>
+              <p class="pay-value" id="track-payment-method">Cash on Delivery</p>
+            </div>
+            <div class="summary-divider" style="margin: 12px 0; border-top: 1px dashed var(--border); opacity: 0.8;"></div>
+            <div class="pay-row" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem;">
+              <span class="pay-label" style="margin-bottom: 0;">Subtotal</span>
+              <span class="pay-value" id="track-subtotal" style="font-size: 0.88rem;">$299.99</span>
+            </div>
+            <div class="pay-row" id="track-discount-row" style="display: none; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; color: var(--success);">
+              <span class="pay-label" style="margin-bottom: 0; color: var(--success);">Discount</span>
+              <span class="pay-value" id="track-discount" style="font-size: 0.88rem; color: var(--success); font-weight: 700;">-$100.00</span>
+            </div>
+            <div class="pay-row" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem;">
+              <span class="pay-label" style="margin-bottom: 0;">Shipping</span>
+              <span class="pay-value" id="track-shipping" style="font-size: 0.88rem;">Free</span>
+            </div>
+            <div class="summary-divider" style="margin: 12px 0; border-top: 1px dashed var(--border); opacity: 0.8;"></div>
+            <div class="pay-row" style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="pay-label" style="margin-bottom: 0; font-size: 0.8rem; font-weight: 700; color: var(--text-dark);">Total Paid</span>
+              <span class="pay-value" id="track-total" style="font-size: 1.15rem; color: var(--aqua-dark);">$299.99</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Need Help -->
+        <div class="glass-card side-card">
+          <h3 class="side-title">Need Help?</h3>
+
+          <div class="help-item">
+            <span class="side-icon aqua-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.09 6.09l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+            </span>
+            <div>
+              <p class="help-label">Call Us</p>
+              <p class="help-value">+1 (555) 123-4567</p>
+            </div>
+          </div>
+
+          <div class="help-item">
+            <span class="side-icon aqua-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="4" width="20" height="16" rx="3" />
+                <path d="M2 7l10 7 10-7" />
+              </svg>
+            </span>
+            <div>
+              <p class="help-label">Email Us</p>
+              <p class="help-value">support@aquashop.com</p>
+            </div>
+          </div>
+
+          <button class="btn-support">Contact Support</button>
+        </div>
+
+      </aside><!-- /track-right -->
+
+    </div><!-- /track-grid -->
+  </main>
+
+  <!-- ══════════════════════════════
+     FOOTER
+══════════════════════════════ -->
+  <footer class="global-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="f-logo">AquaShop</div>
+        <p>Your trusted destination for premium quality products at affordable prices. Shop with confidence and enjoy
+          amazing deals!</p>
+        <div class="social-icons">
+          <a class="social-btn" href="https://facebook.com" target="_blank" title="Facebook">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+            </svg>
+          </a>
+          <a class="social-btn" href="https://twitter.com" target="_blank" title="Twitter">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" />
+            </svg>
+          </a>
+          <a class="social-btn" href="https://instagram.com" target="_blank" title="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="20" rx="5" />
+              <circle cx="12" cy="12" r="4" />
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+            </svg>
+          </a>
+          <a class="social-btn" href="https://youtube.com" target="_blank" title="YouTube">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
+              <polygon points="9.75,15.02 15.5,12 9.75,8.98 9.75,15.02" fill="white" />
+            </svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="shop.html">Shop All Products</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="order-tracking.html">Track Order</a></li>
+          <li><a href="wishlist.html">Wishlist</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Customer Service</h4>
+        <ul>
+          <li><a href="contact.html">Help Center</a></li>
+          <li><a href="order-tracking.html">Track Your Order</a></li>
+          <li><a href="cart.html">Shopping Cart</a></li>
+          <li><a href="checkout.html">Checkout</a></li>
+          <li><a href="contact.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact Us</h4>
+        <div class="contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          <span>123 Shopping Street, New York, NY 10001</span>
+        </div>
+        <div class="contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.09 6.09l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+          </svg>
+          <span>+1 (555) 123-4567</span>
+        </div>
+        <div class="contact-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="3" />
+            <path d="M2 7l10 7 10-7" />
+          </svg>
+          <span>support@aquashop.com</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 AquaShop. All rights reserved. &nbsp;|&nbsp;
+      <a href="#">Privacy Policy</a> &nbsp;|&nbsp;
+      <a href="#">Terms of Service</a>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="../js/api.js"></script>
+  <script src="../js/pages/order-tracking.js?v=1.6"></script>
+
+</body>
+
+</html>
