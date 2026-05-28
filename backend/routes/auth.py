@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import RedirectResponse
 import httpx
 
@@ -8,7 +8,7 @@ from config import (
 )
 from schemas.user import RegisterSchema, LoginSchema
 from models.user  import user_document, serialize_user
-from utils.auth   import hash_password, verify_password, create_access_token
+from utils.auth   import hash_password, verify_password, create_access_token, get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -228,3 +228,7 @@ async def get_all_users():
             "joined":     joined_date,
         })
     return users
+
+@router.get("/profile")
+async def get_profile(current_user=Depends(get_current_user)):
+    return serialize_user(current_user)

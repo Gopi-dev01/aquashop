@@ -99,8 +99,8 @@ const CheckoutAPI = {
    USER / DASHBOARD
 ══════════════════════════════ */
 const UserAPI = {
-  getProfile: () => request('/user/profile'),
-  updateProfile: (payload) => request('/user/profile', 'PUT', payload),
+  getProfile: () => request('/auth/profile'),
+  updateProfile: (payload) => request('/auth/profile', 'PUT', payload),
   getAddresses: () => request('/user/addresses'),
   addAddress: (payload) => request('/user/addresses', 'POST', payload)
 };
