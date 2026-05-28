@@ -182,7 +182,7 @@ async function loadAdminData() {
 
   let orders = [];
   try {
-    const res = await OrderAPI.getAll();
+    const res = await OrderAPI.getAll(true);
     orders = res.orders || [];
     window.allAdminOrders = orders;
   } catch (err) {

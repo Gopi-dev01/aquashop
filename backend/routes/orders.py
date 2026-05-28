@@ -52,14 +52,14 @@ async def create_order(order: OrderCreate, current_user=Depends(get_current_user
     }
 
 @router.get("")
-async def get_orders(current_user=Depends(get_current_user)):
+async def get_orders(admin_view: bool = False, current_user=Depends(get_current_user)):
     user_email = current_user.get("email", "").lower().strip()
     user_id = current_user["id"]
     
     is_admin = user_email in ["24ucs046@gmail.com", "24ucs046@gamil.com"]
     
 
-    if is_admin:
+    if is_admin and admin_view:
         # Admin sees all non-hidden admin orders
         cursor = orders_col.find({}).sort("created_at", -1)
     else:

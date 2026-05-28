@@ -385,7 +385,7 @@ async function loadDashboardData() {
             updatedNotifs = true;
         }
         if (!n.userEmail) {
-            n.userEmail = '24ucs046@gmail.com';
+            n.userEmail = loggedInEmail || 'guest';
             updatedNotifs = true;
         }
     });

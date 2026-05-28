@@ -77,7 +77,7 @@ const WishlistAPI = {
    ORDERS
 ══════════════════════════════ */
 const OrderAPI = {
-  getAll: () => request('/orders'),
+  getAll: (adminView = false) => request(`/orders${adminView ? '?admin_view=true' : ''}`),
   getById: (id) => request(`/orders/${encodeURIComponent(id)}`),
   track: (id) => request(`/orders/${encodeURIComponent(id)}/track`),
   place: (payload) => request('/orders', 'POST', payload),
