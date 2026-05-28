@@ -140,5 +140,10 @@ async def update_order(order_id: str, payload: OrderUpdate, current_user=Depends
     if not updates:
         raise HTTPException(status_code=400, detail="No updates provided")
         
+    current_status = (order.get("status") or "").lower()
+    if current_status == "cancelled" and "status" in updates:
+        if updates["status"].lower() != "cancelled":
+            raise HTTPException(status_code=400, detail="Cannot change status of a cancelled order")
+        
     await orders_col.update_one({"id": {"$in": query_ids}}, {"$set": updates})
     return {"message": "Order updated successfully"}

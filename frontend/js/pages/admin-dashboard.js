@@ -657,8 +657,9 @@ function populateOrdersTable(orders) {
 
   const generateRows = (list, limit, showActions) => list.slice(0, limit).map((o, index) => {
     let badge = 'pending';
-    if (o.status === 'Delivered') badge = 'success';
-    if (o.status === 'Cancelled') badge = 'cancelled';
+    const statusLower = (o.status || '').toLowerCase();
+    if (statusLower === 'delivered') badge = 'success';
+    if (statusLower === 'cancelled') badge = 'cancelled';
 
     let paymentMethodName = 'Cash on Delivery';
     if (o.paymentMethod === 'stripe') {
@@ -666,6 +667,9 @@ function populateOrdersTable(orders) {
     } else if (o.paymentMethod === 'razorpay') {
       paymentMethodName = 'Razorpay';
     }
+
+    const isCancelled = statusLower === 'cancelled';
+    const isDelivered = statusLower === 'delivered';
 
     return `
       <tr>
@@ -680,10 +684,10 @@ function populateOrdersTable(orders) {
         <td>${paymentMethodName}</td>
         <td style="text-align: center;">
           <input type="checkbox" class="order-delivered-checkbox" 
-                 ${o.status === 'Delivered' ? 'checked' : ''} 
-                 ${o.status === 'Cancelled' ? 'disabled' : ''} 
+                 ${isDelivered ? 'checked' : ''} 
+                 ${isCancelled ? 'disabled' : ''} 
                  onchange="toggleOrderDelivered('${o.id}', this.checked)" 
-                 style="width: 18px; height: 18px; cursor: ${o.status === 'Cancelled' ? 'not-allowed' : 'pointer'}; accent-color: #27ae60;">
+                 style="width: 18px; height: 18px; cursor: ${isCancelled ? 'not-allowed' : 'pointer'}; accent-color: #27ae60;">
         </td>
         <td style="text-align: center;">
           <button class="action-btn delete" title="Delete Order" onclick="deleteOrderAdmin('${o.id}')">
@@ -749,6 +753,12 @@ window.toggleOrderDelivered = async function(orderId, isChecked) {
   try {
     const matchedOrder = await OrderAPI.getById(orderId);
     if (matchedOrder) {
+      const statusLower = (matchedOrder.status || '').toLowerCase();
+      if (statusLower === 'cancelled') {
+        alert("Cannot change status of a cancelled order.");
+        await loadAdminData();
+        return;
+      }
       await OrderAPI.update(orderId, { status: isChecked ? 'Delivered' : 'In Transit' });
 
       // Create notifications/alerts
