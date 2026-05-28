@@ -465,7 +465,7 @@ footer {
   .footer-grid { grid-template-columns: 1fr; gap: 24px; }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .products-grid { grid-template-columns: 1fr; }
 }
 
