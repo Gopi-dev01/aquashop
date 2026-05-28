@@ -55,71 +55,54 @@ function initTimelineAnimation() {
   });
 }
 
-/* ── Load order data from localStorage (if redirected from checkout) ── */
-function loadOrderData() {
-  const orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
+/* ── Load order data from API ── */
+async function loadOrderData() {
+  let order = null;
+  let orderId = null;
 
-  const userJson = localStorage.getItem('aqua_user');
-  let loggedInEmail = '';
-  if (userJson) {
-    try {
-      loggedInEmail = JSON.parse(userJson).email;
-    } catch(e) {}
-  }
-
-  // Filter orders to only those belonging to the logged-in user (case-insensitively).
-  // Note: We keep all orders if the user is the admin so the admin can track any order.
-  let filteredOrders = [];
-  if (loggedInEmail) {
-    if (isAdminEmail(loggedInEmail)) {
-      filteredOrders = orders; // Admin has global tracking visibility
-    } else {
-      const lowerEmail = loggedInEmail.toLowerCase().trim();
-      filteredOrders = orders.filter(o => 
-        (o.userEmail && o.userEmail.toLowerCase().trim() === lowerEmail) || 
-        (o.address && o.address.email && o.address.email.toLowerCase().trim() === lowerEmail)
-      );
-    }
-  }
-
-  // Helper: find an order by ID, tolerating presence/absence of leading '#'
-  function findOrder(id) {
-    if (!id) return null;
-    const decoded = decodeURIComponent(id);
-    return filteredOrders.find(o =>
-      o.id === decoded ||
-      o.id === '#' + decoded ||
-      o.id === decoded.replace(/^#/, '')
-    ) || null;
-  }
-
-  // 1st priority: orderId passed as URL query param (from dashboard "Track Order" button)
   const urlParams = new URLSearchParams(window.location.search);
   const rawParam = urlParams.get('orderId');
-  let order = findOrder(rawParam);
-  let orderId = order ? order.id : null;
 
-  // 2nd priority: last_order_id stored in localStorage (from checkout redirect)
-  if (!order) {
+  if (rawParam) {
+    orderId = decodeURIComponent(rawParam);
+  } else {
     const lastId = localStorage.getItem('last_order_id');
-    order = findOrder(lastId);
-    if (order) {
-      orderId = order.id;
-      // Clear it so future dashboard clicks use the URL param exclusively
+    if (lastId) {
+      orderId = lastId;
       localStorage.removeItem('last_order_id');
     }
   }
 
-  // 3rd priority: fallback to the most recent order in the array
-  if (!order && filteredOrders.length > 0) {
-    order = filteredOrders[0];
-    orderId = order.id;
+  // Fetch all orders for the current user
+  let userOrders = [];
+  try {
+    const res = await OrderAPI.getAll();
+    userOrders = res.orders || [];
+  } catch (err) {
+    console.error("Failed to load user orders list:", err);
   }
 
+  if (orderId) {
+    const cleanId = orderId.trim();
+    order = userOrders.find(o =>
+      o.id === cleanId ||
+      o.id === '#' + cleanId ||
+      o.id === cleanId.replace(/^#/, '')
+    );
 
+    if (!order) {
+      try {
+        order = await OrderAPI.getById(orderId);
+      } catch (err) {
+        console.error("Failed to fetch specific order by ID:", err);
+      }
+    }
+  } else if (userOrders.length > 0) {
+    order = userOrders[0];
+  }
 
   if (!order) {
-    console.log("No orders found in localStorage. Setting default mockup dates to today and today + 7 days.");
+    console.log("No orders found. Setting default mockup dates to today and today + 7 days.");
     
     // Placed Date (Today)
     const baseDate = new Date();
@@ -181,6 +164,8 @@ function loadOrderData() {
     }
     return;
   }
+
+  orderId = order.id;
 
   // 1. Populate Order ID
   const orderIdEl = document.querySelector('.order-id');
@@ -457,11 +442,11 @@ function initSupportBtn() {
 
 /* ══════════════════════════════
    INIT
-══════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
+   ══════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async () => {
   updateBadges();
   initNavScroll();
   initTimelineAnimation();
-  loadOrderData();
+  await loadOrderData();
   initSupportBtn();
 });
