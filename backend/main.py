@@ -81,23 +81,6 @@ async def seed_default_users():
             await users_col.insert_one(admin_doc)
             print("🌱 Seeded default Admin user (24ucs046@gmail.com) into MongoDB!")
 
-        # Seed Tony Stark user if missing
-        tony_exists = await users_col.find_one({"email": "tonystarkmark52@gmail.com"})
-        if not tony_exists:
-            tony_doc = {
-                "first_name": "Tony",
-                "last_name": "Stark",
-                "email": "tonystarkmark52@gmail.com",
-                "phone": "9363561221",
-                "password": hash_password("tony123"), # default password
-                "avatar": "https://ui-avatars.com/api/?name=Tony+Stark&background=00BFCF&color=fff",
-                "is_google": False,
-                "is_active": True,
-                "created_at": datetime.utcnow(),
-                "updated_at": datetime.utcnow()
-            }
-            await users_col.insert_one(tony_doc)
-            print("🌱 Seeded default Customer user (tonystarkmark52@gmail.com) into MongoDB!")
     except Exception as e:
         print(f"⚠️ Error seeding default users: {str(e)}")
 

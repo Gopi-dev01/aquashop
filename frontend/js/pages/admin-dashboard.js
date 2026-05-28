@@ -876,15 +876,6 @@ const DEFAULT_SYSTEM_USERS = [
     joined: "2026-05-01",
     avatar: "https://ui-avatars.com/api/?name=Admin+User&background=00BFCF&color=fff",
     phone: "123-456-7890"
-  },
-  {
-    first_name: "Tony",
-    last_name: "Stark",
-    email: "tonystarkmark52@gmail.com",
-    role: "Customer",
-    joined: "2026-05-22",
-    avatar: "https://ui-avatars.com/api/?name=Tony+Stark&background=00BFCF&color=fff",
-    phone: "9363561221"
   }
 ];
 
