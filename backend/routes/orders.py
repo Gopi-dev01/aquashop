@@ -59,7 +59,7 @@ async def get_orders(current_user=Depends(get_current_user)):
     is_admin = user_email in ["24ucs046@gmail.com", "24ucs046@gamil.com"]
     
     # Auto-seed mock default orders for a new user if they have none
-    if not is_admin:
+    if is_admin:
         count = await orders_col.count_documents({"user_id": user_id})
         user_doc = await users_col.find_one({"_id": ObjectId(user_id)})
         if count == 0 and not (user_doc and user_doc.get("seeded_orders")):

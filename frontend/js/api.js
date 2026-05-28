@@ -78,11 +78,11 @@ const WishlistAPI = {
 ══════════════════════════════ */
 const OrderAPI = {
   getAll: () => request('/orders'),
-  getById: (id) => request(`/orders/${id}`),
-  track: (id) => request(`/orders/${id}/track`),
+  getById: (id) => request(`/orders/${encodeURIComponent(id)}`),
+  track: (id) => request(`/orders/${encodeURIComponent(id)}/track`),
   place: (payload) => request('/orders', 'POST', payload),
-  cancel: (id) => request(`/orders/${id}/cancel`, 'PUT'),
-  update: (id, payload) => request(`/orders/${id}`, 'PUT', payload)
+  cancel: (id) => request(`/orders/${encodeURIComponent(id)}/cancel`, 'PUT'),
+  update: (id, payload) => request(`/orders/${encodeURIComponent(id)}`, 'PUT', payload)
 };
 
 /* ══════════════════════════════
