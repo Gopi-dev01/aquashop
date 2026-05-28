@@ -1,4 +1,4 @@
-const API_BASE = 'https://aquashop-backend.onrender.com'; // change to your FastAPI URL / Render URL
+const API_BASE = 'https://aquashops-backend.onrender.com'; // change to your FastAPI URL / Render URL
 
 /* ── HELPER ── */
 async function request(endpoint, method = 'GET', body = null) {
