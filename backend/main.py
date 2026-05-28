@@ -28,7 +28,7 @@ app = FastAPI(
 )
 
 # ── CORS ──
-frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5500").rstrip("/")
+frontend_url = os.getenv("FRONTEND_URL", "https://aquashop-nine.vercel.app").rstrip("/")
 app.add_middleware(
     CORSMiddleware,
     allow_origins     = [
