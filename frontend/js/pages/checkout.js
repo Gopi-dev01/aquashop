@@ -255,18 +255,8 @@ async function placeOrder() {
   loader.style.display = 'block';
 
   try {
-    // Simulate API Call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // In a real app, you'd call:
-    // const response = await API.post('/orders', orderData);
-    
-    // Success
     const orderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
-    document.getElementById('order-id').textContent = `#${orderId}`;
-
-    // Save order ID so order-tracking page can read it
-    localStorage.setItem('last_order_id', `#${orderId}`);
+    const formattedOrderId = `#${orderId}`;
 
     // Capture Address Details
     const address = {
@@ -309,19 +299,29 @@ async function placeOrder() {
     const totalVal = Math.max(0, subtotal - discount + shipping);
     const formattedTotal = `$${totalVal.toFixed(2)}`;
 
-    let orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
-    orders.unshift({
-      id: `#${orderId}`,
-      userEmail: userEmail,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      items: currentCart,
-      status: 'In Transit',
+    // Prepare payload matching OrderCreate backend schema
+    const orderPayload = {
+      id: formattedOrderId,
+      items: currentCart.map(item => ({
+        id: item.id || item.product_id || 'unknown',
+        name: item.name,
+        price: item.price,
+        qty: item.qty,
+        img: item.img
+      })),
       paymentMethod: paymentMethod,
       address: address,
       deliveryDate: deliveryDateString,
       total: formattedTotal
-    });
-    localStorage.setItem('aqua_orders', JSON.stringify(orders));
+    };
+
+    // Place order via API
+    await OrderAPI.place(orderPayload);
+
+    document.getElementById('order-id').textContent = formattedOrderId;
+
+    // Save order ID so order-tracking page can read it
+    localStorage.setItem('last_order_id', formattedOrderId);
 
     // Save a notification
     let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');

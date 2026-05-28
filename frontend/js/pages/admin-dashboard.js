@@ -78,9 +78,9 @@ function saveProducts(products) {
 }
 
 /* ── INIT ── */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initAdminTabs();
-  loadAdminData();
+  await loadAdminData();
   initDeleteConfirmModal();
   initCustomOrderDropdown();
 });
@@ -161,7 +161,7 @@ function initAdminTabs() {
   });
 }
 
-function loadAdminData() {
+async function loadAdminData() {
   const userJson = localStorage.getItem('aqua_user');
   if (userJson) {
     try {
@@ -180,28 +180,13 @@ function loadAdminData() {
     } catch(e) {}
   }
 
-  let orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
-  
-  // Programmatically update any order having total $149.99 to $107.00
-  let ordersUpdated = false;
-  orders = orders.map(o => {
-    if (o.total === '$149.99' || o.total === 149.99) {
-      o.total = '$107.00';
-      ordersUpdated = true;
-    }
-    if (o.items) {
-      o.items = o.items.map(item => {
-        if (item.id === 'p1' && item.price === 149.99) {
-          item.price = 107.00;
-          ordersUpdated = true;
-        }
-        return item;
-      });
-    }
-    return o;
-  });
-  if (ordersUpdated) {
-    localStorage.setItem('aqua_orders', JSON.stringify(orders));
+  let orders = [];
+  try {
+    const res = await OrderAPI.getAll();
+    orders = res.orders || [];
+    window.allAdminOrders = orders;
+  } catch (err) {
+    console.error("Failed to load orders from API:", err);
   }
 
   const adminVisibleOrders = orders.filter(o => !o.hiddenAdmin);
@@ -400,71 +385,69 @@ window.deleteProduct = function(id) {
 function initDeleteConfirmModal() {
   const confirmBtn = document.getElementById('btn-confirm-delete');
   if (confirmBtn) {
-    confirmBtn.addEventListener('click', () => {
+    confirmBtn.addEventListener('click', async () => {
       if (productToDeleteId) {
         let products = getProducts();
         products = products.filter(p => p.id !== productToDeleteId);
         saveProducts(products);
-        loadAdminData();
+        await loadAdminData();
         closeModal('delete-confirm-modal');
         showAdminToast('🗑️ Product deleted successfully!', 'error');
         productToDeleteId = null;
       } else if (orderToDeleteId) {
-        let orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
-        const matchedOrder = orders.find(o => o.id === orderToDeleteId);
-        const wasAlreadyCancelled = matchedOrder && matchedOrder.status === 'Cancelled';
-        const isDelivered = matchedOrder && matchedOrder.status === 'Delivered';
+        try {
+          const matchedOrder = await OrderAPI.getById(orderToDeleteId);
+          const wasAlreadyCancelled = matchedOrder && matchedOrder.status === 'Cancelled';
+          const isDelivered = matchedOrder && matchedOrder.status === 'Delivered';
 
-        orders = orders.map(o => {
-          if (o.id === orderToDeleteId) {
-            // Hide it from admin view, but keep it in database for the customer
-            o.hiddenAdmin = true;
+          const updates = { hiddenAdmin: true };
+          if (!isDelivered) {
+            updates.status = 'Cancelled';
+          }
 
-            // Only mark as Cancelled if the order is not already Delivered
-            if (o.status !== 'Delivered') {
-              o.status = 'Cancelled';
-            }
+          await OrderAPI.update(orderToDeleteId, updates);
 
-            // Only log cancellation notifications/alerts if the order was not already cancelled and not delivered!
-            if (!wasAlreadyCancelled && !isDelivered) {
-              const customerEmail = o.userEmail || (o.address && o.address.email) || "";
-              let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-              
-              if (customerEmail) {
-                notifications.unshift({
-                  notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-                  id: orderToDeleteId,
-                  userEmail: customerEmail,
-                  message: `Your order ${orderToDeleteId} has been cancelled by Admin.`,
-                  date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' })
-                });
-              }
-
+          // Only log cancellation notifications/alerts if the order was not already cancelled and not delivered!
+          if (!wasAlreadyCancelled && !isDelivered) {
+            const customerEmail = matchedOrder.userEmail || (matchedOrder.address && matchedOrder.address.email) || "";
+            let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
+            
+            if (customerEmail) {
               notifications.unshift({
                 notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
                 id: orderToDeleteId,
-                userEmail: 'admin',
-                message: `Order ${orderToDeleteId} cancelled by Admin (Customer: ${customerEmail || 'Guest'}).`,
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-                read: false
+                userEmail: customerEmail,
+                message: `Your order ${orderToDeleteId} has been cancelled by Admin.`,
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' })
               });
-
-              localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
             }
+
+            notifications.unshift({
+              notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
+              id: orderToDeleteId,
+              userEmail: 'admin',
+              message: `Order ${orderToDeleteId} cancelled by Admin (Customer: ${customerEmail || 'Guest'}).`,
+              date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
+              read: false
+            });
+
+            localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
           }
-          return o;
-        });
-        localStorage.setItem('aqua_orders', JSON.stringify(orders));
-        loadAdminData();
-        closeModal('delete-confirm-modal');
-        if (wasAlreadyCancelled) {
-          showAdminToast('🗑️ Order record deleted successfully!', 'error');
-        } else {
-          showAdminToast('🗑️ Order deleted and cancelled successfully!', 'error');
+
+          await loadAdminData();
+          closeModal('delete-confirm-modal');
+          if (wasAlreadyCancelled) {
+            showAdminToast('🗑️ Order record deleted successfully!', 'error');
+          } else {
+            showAdminToast('🗑️ Order deleted and cancelled successfully!', 'error');
+          }
+        } catch (err) {
+          console.error("Failed to delete order:", err);
+          alert("Error deleting order: " + err.message);
         }
         orderToDeleteId = null;
       } else if (userToDeleteEmail) {
-        deleteUserAdminConfirmed(userToDeleteEmail);
+        await deleteUserAdminConfirmed(userToDeleteEmail);
       } else if (subscriberToDeleteEmail) {
         let subscribers = JSON.parse(localStorage.getItem('aqua_subscribers') || '[]');
         subscribers = subscribers.filter(s => s.toLowerCase().trim() !== subscriberToDeleteEmail.toLowerCase().trim());
@@ -758,73 +741,75 @@ function populateOrdersTable(orders) {
 }
 
 window.filterOrdersAdmin = function() {
-  const orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
+  const orders = window.allAdminOrders || [];
   populateOrdersTable(orders);
 };
 
-window.toggleOrderDelivered = function(orderId, isChecked) {
-  let orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
-  const orderIndex = orders.findIndex(o => o.id === orderId);
-  if (orderIndex > -1) {
-    orders[orderIndex].status = isChecked ? 'Delivered' : 'In Transit';
-    localStorage.setItem('aqua_orders', JSON.stringify(orders));
+window.toggleOrderDelivered = async function(orderId, isChecked) {
+  try {
+    const matchedOrder = await OrderAPI.getById(orderId);
+    if (matchedOrder) {
+      await OrderAPI.update(orderId, { status: isChecked ? 'Delivered' : 'In Transit' });
 
-    // Create notifications/alerts
-    const order = orders[orderIndex];
-    const customerEmail = order.userEmail || (order.address && order.address.email) || "";
-    let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
+      // Create notifications/alerts
+      const customerEmail = matchedOrder.userEmail || (matchedOrder.address && matchedOrder.address.email) || "";
+      let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
 
-    const nowStr = new Date().toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+      const nowStr = new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
 
-    if (isChecked) {
-      if (customerEmail) {
+      if (isChecked) {
+        if (customerEmail) {
+          notifications.unshift({
+            notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
+            id: orderId,
+            userEmail: customerEmail,
+            message: `Your order ${orderId} has been successfully delivered. Thank you for shopping with AquaShop!`,
+            date: nowStr,
+            read: false
+          });
+        }
         notifications.unshift({
           notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
           id: orderId,
-          userEmail: customerEmail,
-          message: `Your order ${orderId} has been successfully delivered. Thank you for shopping with AquaShop!`,
+          userEmail: 'admin',
+          message: `Order ${orderId} marked as DELIVERED by Delivery Personnel/Admin.`,
+          date: nowStr,
+          read: false
+        });
+      } else {
+        if (customerEmail) {
+          notifications.unshift({
+            notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
+            id: orderId,
+            userEmail: customerEmail,
+            message: `Your order ${orderId} status has been updated to In Transit.`,
+            date: nowStr,
+            read: false
+          });
+        }
+        notifications.unshift({
+          notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
+          id: orderId,
+          userEmail: 'admin',
+          message: `Order ${orderId} status reverted to In Transit.`,
           date: nowStr,
           read: false
         });
       }
-      notifications.unshift({
-        notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-        id: orderId,
-        userEmail: 'admin',
-        message: `Order ${orderId} marked as DELIVERED by Delivery Personnel/Admin.`,
-        date: nowStr,
-        read: false
-      });
-    } else {
-      if (customerEmail) {
-        notifications.unshift({
-          notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-          id: orderId,
-          userEmail: customerEmail,
-          message: `Your order ${orderId} status has been updated to In Transit.`,
-          date: nowStr,
-          read: false
-        });
-      }
-      notifications.unshift({
-        notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-        id: orderId,
-        userEmail: 'admin',
-        message: `Order ${orderId} status reverted to In Transit.`,
-        date: nowStr,
-        read: false
-      });
+
+      localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
+      await loadAdminData();
+      showAdminToast(isChecked ? '📦 Order marked as Delivered!' : '🔄 Order status set to In Transit.');
     }
-
-    localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-    loadAdminData();
-    showAdminToast(isChecked ? '📦 Order marked as Delivered!' : '🔄 Order status set to In Transit.');
+  } catch (err) {
+    console.error("Failed to toggle order status:", err);
+    alert("Failed to toggle order status: " + err.message);
   }
 };
 
@@ -1386,9 +1371,9 @@ window.deleteAdminNotification = function(notifId) {
 };
 
 // Listen for local storage changes from other tabs (e.g. order placed, cancelled or newsletter subscribed)
-window.addEventListener('storage', (e) => {
+window.addEventListener('storage', async (e) => {
   if (e.key === 'aqua_notifications' || e.key === 'aqua_orders' || e.key === 'aqua_subscribers') {
-    loadAdminData();
+    await loadAdminData();
   }
 });
 

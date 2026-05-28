@@ -81,7 +81,8 @@ const OrderAPI = {
   getById: (id) => request(`/orders/${id}`),
   track: (id) => request(`/orders/${id}/track`),
   place: (payload) => request('/orders', 'POST', payload),
-  cancel: (id) => request(`/orders/${id}/cancel`, 'PUT')
+  cancel: (id) => request(`/orders/${id}/cancel`, 'PUT'),
+  update: (id, payload) => request(`/orders/${id}`, 'PUT', payload)
 };
 
 /* ══════════════════════════════

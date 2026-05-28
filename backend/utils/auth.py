@@ -45,4 +45,5 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=404, detail="User not found")
 
     user["_id"] = str(user["_id"])
+    user["id"] = user["_id"]
     return user

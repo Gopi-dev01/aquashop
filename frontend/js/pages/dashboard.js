@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initNavbar();
     updateCounts();
     await loadUserProfile();
-    loadDashboardData();
+    await loadDashboardData();
 });
 
 /* ── LOAD USER PROFILE ── */
@@ -240,7 +240,7 @@ function seedDefaultOrders(email) {
 }
 
 /* ── LOAD DASHBOARD DATA ── */
-function loadDashboardData() {
+async function loadDashboardData() {
     const userJson = localStorage.getItem('aqua_user');
     let loggedInEmail = '';
     if (userJson) {
@@ -249,23 +249,14 @@ function loadDashboardData() {
         } catch(e) {}
     }
 
-    if (isAdminEmail(loggedInEmail)) {
-        seedDefaultOrders(loggedInEmail);
-    }
-
     // 1. Load Orders
     const ordersList = document.querySelector('.orders-list');
-    let orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
-    
-    // Filter to only display orders placed by this user (case-insensitively)
-    if (loggedInEmail) {
-        const lowerEmail = loggedInEmail.toLowerCase().trim();
-        orders = orders.filter(o => 
-            (o.userEmail && o.userEmail.toLowerCase().trim() === lowerEmail) || 
-            (o.address && o.address.email && o.address.email.toLowerCase().trim() === lowerEmail)
-        );
-    } else {
-        orders = [];
+    let orders = [];
+    try {
+        const res = await OrderAPI.getAll();
+        orders = res.orders || [];
+    } catch (err) {
+        console.error("Failed to load orders from API:", err);
     }
     
     if (ordersList) {
@@ -639,43 +630,46 @@ window.cancelOrder = function(orderId) {
         type: 'warning',
         confirmText: 'Yes, Cancel Order',
         cancelText: 'Go Back',
-        onConfirm: () => {
-            let orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
-            orders = orders.map(o => o.id === orderId ? { ...o, status: 'Cancelled' } : o);
-            localStorage.setItem('aqua_orders', JSON.stringify(orders));
-            
-            // Get logged-in email
-            const userJson = localStorage.getItem('aqua_user');
-            let email = '';
-            if (userJson) {
-                try { email = JSON.parse(userJson).email; } catch(e) {}
+        onConfirm: async () => {
+            try {
+                await OrderAPI.cancel(orderId);
+                
+                // Get logged-in email
+                const userJson = localStorage.getItem('aqua_user');
+                let email = '';
+                if (userJson) {
+                    try { email = JSON.parse(userJson).email; } catch(e) {}
+                }
+
+                let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
+                
+                // Customer notification
+                notifications.unshift({
+                    notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
+                    id: orderId,
+                    userEmail: email,
+                    message: `Your order ${orderId} has been cancelled.`,
+                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
+                    read: false
+                });
+
+                // Admin alert notification
+                notifications.unshift({
+                    notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
+                    id: orderId,
+                    userEmail: 'admin',
+                    message: `Order cancelled by customer: ${orderId} (${email || 'Guest'}).`,
+                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
+                    read: false
+                });
+
+                localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
+
+                await loadDashboardData();
+            } catch (err) {
+                console.error("Failed to cancel order:", err);
+                alert("Failed to cancel order: " + err.message);
             }
-
-            let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-            
-            // Customer notification
-            notifications.unshift({
-                notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-                id: orderId,
-                userEmail: email,
-                message: `Your order ${orderId} has been cancelled.`,
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-                read: false
-            });
-
-            // Admin alert notification
-            notifications.unshift({
-                notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-                id: orderId,
-                userEmail: 'admin',
-                message: `Order cancelled by customer: ${orderId} (${email || 'Guest'}).`,
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-                read: false
-            });
-
-            localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-
-            loadDashboardData();
         }
     });
 };
@@ -695,11 +689,14 @@ window.deleteOrder = function(orderId) {
                     card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
                     card.style.opacity = '0';
                     card.style.transform = 'translateX(30px)';
-                    setTimeout(() => {
-                        let orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
-                        orders = orders.map(o => o.id === orderId ? { ...o, hidden: true } : o);
-                        localStorage.setItem('aqua_orders', JSON.stringify(orders));
-                        loadDashboardData();
+                    setTimeout(async () => {
+                        try {
+                            await OrderAPI.update(orderId, { hidden: true });
+                            await loadDashboardData();
+                        } catch (err) {
+                            console.error("Failed to delete order:", err);
+                            alert("Failed to delete order: " + err.message);
+                        }
                     }, 350);
                 }
             });
@@ -714,11 +711,14 @@ window.deletePayment = function(orderId) {
         type: 'danger',
         confirmText: 'Yes, Remove',
         cancelText: 'Cancel',
-        onConfirm: () => {
-            let orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
-            orders = orders.map(o => o.id === orderId ? { ...o, hiddenPayment: true } : o);
-            localStorage.setItem('aqua_orders', JSON.stringify(orders));
-            loadDashboardData();
+        onConfirm: async () => {
+            try {
+                await OrderAPI.update(orderId, { hiddenPayment: true });
+                await loadDashboardData();
+            } catch (err) {
+                console.error("Failed to remove payment method:", err);
+                alert("Failed to remove payment method: " + err.message);
+            }
         }
     });
 };
@@ -730,11 +730,14 @@ window.deleteAddress = function(orderId) {
         type: 'danger',
         confirmText: 'Yes, Remove',
         cancelText: 'Cancel',
-        onConfirm: () => {
-            let orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
-            orders = orders.map(o => o.id === orderId ? { ...o, hiddenAddress: true } : o);
-            localStorage.setItem('aqua_orders', JSON.stringify(orders));
-            loadDashboardData();
+        onConfirm: async () => {
+            try {
+                await OrderAPI.update(orderId, { hiddenAddress: true });
+                await loadDashboardData();
+            } catch (err) {
+                console.error("Failed to remove address:", err);
+                alert("Failed to remove address: " + err.message);
+            }
         }
     });
 };
