@@ -814,7 +814,7 @@ window.toggleOrderDelivered = async function(orderId, isChecked) {
 };
 
 window.deleteOrderAdmin = function(orderId) {
-  let orders = JSON.parse(localStorage.getItem('aqua_orders') || '[]');
+  let orders = window.allAdminOrders || [];
   
   // Find order
   let o = orders.find(ord => ord.id === orderId);
