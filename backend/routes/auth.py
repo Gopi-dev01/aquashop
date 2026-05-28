@@ -77,17 +77,18 @@ async def login(payload: LoginSchema):
 # ══════════════════════════════
 # GOOGLE — Step 1: Redirect
 # ══════════════════════════════
+import urllib.parse
+
 @router.get("/google")
 async def google_login():
-    scope = "openid email profile"
-    url = (
-        "https://accounts.google.com/o/oauth2/v2/auth"
-        f"?client_id={GOOGLE_CLIENT_ID}"
-        f"&redirect_uri={GOOGLE_REDIRECT_URI}"
-        f"&response_type=code"
-        f"&scope={scope}"
-        f"&access_type=offline"
-    )
+    params = {
+        "client_id": GOOGLE_CLIENT_ID or "",
+        "redirect_uri": GOOGLE_REDIRECT_URI or "",
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline"
+    }
+    url = f"https://accounts.google.com/o/oauth2/v2/auth?{urllib.parse.urlencode(params)}"
     return RedirectResponse(url)
 
 # ══════════════════════════════

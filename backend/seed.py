@@ -9,7 +9,8 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+base_dir = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(dotenv_path=os.path.join(base_dir, ".env"))
 
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 MONGO_DB  = os.getenv("MONGO_DB",  "aquashop")

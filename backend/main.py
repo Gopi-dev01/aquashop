@@ -7,7 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+base_dir = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(dotenv_path=os.path.join(base_dir, ".env"))
 
 # ── IMPORT ROUTERS ──
 from routes.auth     import router as auth_router
