@@ -1,4 +1,6 @@
-const API_BASE = 'https://aquashops-backend.onrender.com'; // change to your FastAPI URL / Render URL
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '[::1]')
+  ? 'http://localhost:8000'
+  : 'https://aquashops-backend.onrender.com';
 
 /* ── HELPER ── */
 async function request(endpoint, method = 'GET', body = null) {
