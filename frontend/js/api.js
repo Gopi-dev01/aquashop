@@ -27,6 +27,7 @@ const AuthAPI = {
   updateUser: (email, payload) => request(`/auth/users/${encodeURIComponent(email)}`, 'PUT', payload),
   deleteUser: (email) => request(`/auth/users/${encodeURIComponent(email)}`, 'DELETE'),
   getUsers: () => request('/auth/users'),
+  resetPassword: (email, new_password) => request('/auth/reset-password', 'POST', { email, new_password }),
   logout: () => {
     localStorage.removeItem('aqua_token');
     localStorage.removeItem('aqua_user');

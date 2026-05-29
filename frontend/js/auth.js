@@ -1,7 +1,8 @@
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
+  const tabEl = document.getElementById('tab-' + tab);
+  if (tabEl) tabEl.classList.add('active');
   document.getElementById('form-' + tab).classList.add('active');
   clearErrors();
 }
@@ -149,5 +150,38 @@ function handleGoogleAuth() {
   setTimeout(() => AuthAPI.google(), 800);
 }
 
+/* ══════════════════════════════
+   RESET PASSWORD
+   ══════════════════════════════ */
+async function handleResetPassword() {
+  let ok = true;
+  const email = document.getElementById('forgot-email').value.trim();
+  const pass  = document.getElementById('forgot-pass').value;
+  const cpass = document.getElementById('forgot-cpass').value;
 
+  if (!isEmail(email)) { showErr('forgot-email-err', 'Please enter a valid email.'); ok = false; }
+  else hideErr('forgot-email-err');
 
+  if (pass.length < 8) { showErr('forgot-pass-err', 'Password must be at least 8 characters.'); ok = false; }
+  else hideErr('forgot-pass-err');
+
+  if (pass !== cpass) { showErr('forgot-cpass-err', 'Passwords do not match.'); ok = false; }
+  else hideErr('forgot-cpass-err');
+
+  if (!ok) return;
+
+  try {
+    showToast('🔑 Updating your password…');
+    await AuthAPI.resetPassword(email, pass);
+    showToast('✅ Password updated successfully! Please Sign In.');
+    
+    // Clear inputs
+    document.getElementById('forgot-email').value = '';
+    document.getElementById('forgot-pass').value = '';
+    document.getElementById('forgot-cpass').value = '';
+    
+    setTimeout(() => switchTab('login'), 1500);
+  } catch (err) {
+    showToast('❌ ' + err.message);
+  }
+}

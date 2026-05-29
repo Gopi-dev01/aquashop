@@ -115,7 +115,7 @@
               </svg></span>
             Remember me
           </label>
-          <a class="forgot" href="#">Forgot Password?</a>
+          <a class="forgot" href="#" onclick="switchTab('forgot'); return false;">Forgot Password?</a>
         </div>
 
         <button class="btn-primary" onclick="handleLogin()">Sign In</button>
@@ -143,6 +143,66 @@
         </div>
 
         <p class="switch-hint">Don't have an account? <a onclick="switchTab('signup')">Sign Up</a></p>
+      </div>
+
+      <!-- ═══ FORGOT PASSWORD FORM ═══ -->
+      <div class="form" id="form-forgot">
+        <div class="heading">
+          <h1>Reset Password 🔑</h1>
+          <p>Enter your details to set a new password</p>
+        </div>
+
+        <div class="field">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="4" width="20" height="16" rx="3" />
+                <path d="M2 7l10 7 10-7" />
+              </svg></span>
+            <input type="email" id="forgot-email" autocomplete="email" />
+          </div>
+          <span class="error-msg" id="forgot-email-err">Please enter a valid email.</span>
+        </div>
+
+        <div class="field">
+          <label>New Password</label>
+          <div class="input-wrap">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg></span>
+            <input type="password" id="forgot-pass" autocomplete="new-password" />
+            <button class="toggle-pass" onclick="togglePass('forgot-pass',this)" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+          <span class="error-msg" id="forgot-pass-err">Password must be at least 8 characters.</span>
+        </div>
+
+        <div class="field">
+          <label>Confirm Password</label>
+          <div class="input-wrap">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg></span>
+            <input type="password" id="forgot-cpass" autocomplete="new-password" />
+            <button class="toggle-pass" onclick="togglePass('forgot-cpass',this)" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+          <span class="error-msg" id="forgot-cpass-err">Passwords do not match.</span>
+        </div>
+
+        <button class="btn-primary" onclick="handleResetPassword()">Update Password</button>
+
+        <p class="switch-hint">Remembered your password? <a onclick="switchTab('login')">Sign In</a></p>
       </div>
 
       <!-- ═══ SIGNUP FORM ═══ -->

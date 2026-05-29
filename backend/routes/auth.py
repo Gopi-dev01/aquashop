@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import RedirectResponse
+from pydantic import BaseModel, EmailStr
 import httpx
 
 from config import (
@@ -75,6 +76,27 @@ async def login(payload: LoginSchema):
     }
 
 # ══════════════════════════════
+class ResetPasswordSchema(BaseModel):
+    email: EmailStr
+    new_password: str
+
+@router.post("/reset-password")
+async def reset_password(payload: ResetPasswordSchema):
+    email_clean = payload.email.lower().strip()
+    user = await users_col.find_one({"email": email_clean})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    password_str = str(payload.new_password)
+    if len(password_str.encode('utf-8')) > 72:
+         raise HTTPException(status_code=400, detail="Password is too long (max 72 characters)")
+         
+    await users_col.update_one(
+        {"_id": user["_id"]},
+        {"$set": {"password": hash_password(password_str)}}
+    )
+    return {"status": "success", "message": "Password updated successfully"}
+
 # GOOGLE — Step 1: Redirect
 # ══════════════════════════════
 import urllib.parse
