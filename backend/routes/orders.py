@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from bson import ObjectId
 
-from config import orders_col, users_col
+from config import orders_col, users_col, notifications_col
 from utils.auth import get_current_user
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
@@ -45,6 +45,36 @@ async def create_order(order: OrderCreate, current_user=Depends(get_current_user
     doc["created_at"] = datetime.utcnow()
     
     await orders_col.insert_one(doc)
+    
+    # Create database notifications for user and admin
+    import uuid
+    notif_time = datetime.now().strftime("%b %d, %Y, %I:%M %p")
+    
+    cust_notif = {
+        "notifId": f"notif-{uuid.uuid4().hex[:9]}-{int(datetime.utcnow().timestamp() * 1000)}",
+        "id": order.id,
+        "userEmail": doc["userEmail"].lower().strip(),
+        "message": f"Your order {order.id} was placed successfully! It will be delivered soon.",
+        "date": notif_time,
+        "read": False,
+        "created_at": datetime.utcnow()
+    }
+    
+    admin_notif = {
+        "notifId": f"notif-{uuid.uuid4().hex[:9]}-{int(datetime.utcnow().timestamp() * 1000)}",
+        "id": order.id,
+        "userEmail": "admin",
+        "message": f"New Order placed: {order.id} by {order.address.get('firstName', '')} {order.address.get('lastName', '')} (Customer email: {doc['userEmail']}). Total: {order.total}",
+        "date": notif_time,
+        "read": False,
+        "created_at": datetime.utcnow()
+    }
+    
+    try:
+        await notifications_col.insert_many([cust_notif, admin_notif])
+    except Exception as e:
+        print("Failed to save order placement notifications in DB:", e)
+        
     return {
         "status": "success",
         "order_id": order.id,
@@ -117,6 +147,37 @@ async def cancel_order(order_id: str, current_user=Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Not authorized to cancel this order")
         
     await orders_col.update_one({"id": {"$in": query_ids}}, {"$set": {"status": "Cancelled"}})
+    
+    # Create DB notifications
+    import uuid
+    notif_time = datetime.now().strftime("%b %d, %Y, %I:%M %p")
+    cust_email = order.get("userEmail") or ""
+    
+    cust_notif = {
+        "notifId": f"notif-{uuid.uuid4().hex[:9]}-{int(datetime.utcnow().timestamp() * 1000)}",
+        "id": order["id"],
+        "userEmail": cust_email.lower().strip(),
+        "message": f"Your order {order['id']} has been cancelled.",
+        "date": notif_time,
+        "read": False,
+        "created_at": datetime.utcnow()
+    }
+    
+    admin_notif = {
+        "notifId": f"notif-{uuid.uuid4().hex[:9]}-{int(datetime.utcnow().timestamp() * 1000)}",
+        "id": order["id"],
+        "userEmail": "admin",
+        "message": f"Order cancelled by customer: {order['id']} ({cust_email}).",
+        "date": notif_time,
+        "read": False,
+        "created_at": datetime.utcnow()
+    }
+    
+    try:
+        await notifications_col.insert_many([cust_notif, admin_notif])
+    except Exception as e:
+        print("Failed to save cancel notifications in DB:", e)
+        
     return {"message": "Order cancelled successfully"}
 
 @router.put("/{order_id}")
@@ -146,4 +207,48 @@ async def update_order(order_id: str, payload: OrderUpdate, current_user=Depends
             raise HTTPException(status_code=400, detail="Cannot change status of a cancelled order")
         
     await orders_col.update_one({"id": {"$in": query_ids}}, {"$set": updates})
+    
+    # Check if status is being changed and create notifications
+    if "status" in updates:
+        new_status = updates["status"]
+        old_status = order.get("status")
+        if new_status != old_status:
+            import uuid
+            notif_time = datetime.now().strftime("%b %d, %Y, %I:%M %p")
+            cust_email = order.get("userEmail") or ""
+            
+            if new_status.lower() == "delivered":
+                cust_msg = f"Your order {order['id']} has been successfully delivered. Thank you for shopping with AquaShop!"
+                admin_msg = f"Order {order['id']} marked as DELIVERED by Delivery Personnel/Admin."
+            elif new_status.lower() == "cancelled":
+                cust_msg = f"Your order {order['id']} has been cancelled by Admin."
+                admin_msg = f"Order {order['id']} cancelled by Admin (Customer: {cust_email})."
+            else:
+                cust_msg = f"Your order {order['id']} status has been updated to {new_status}."
+                admin_msg = f"Order {order['id']} status updated to {new_status}."
+                
+            cust_notif = {
+                "notifId": f"notif-{uuid.uuid4().hex[:9]}-{int(datetime.utcnow().timestamp() * 1000)}",
+                "id": order["id"],
+                "userEmail": cust_email.lower().strip(),
+                "message": cust_msg,
+                "date": notif_time,
+                "read": False,
+                "created_at": datetime.utcnow()
+            }
+            
+            admin_notif = {
+                "notifId": f"notif-{uuid.uuid4().hex[:9]}-{int(datetime.utcnow().timestamp() * 1000)}",
+                "id": order["id"],
+                "userEmail": "admin",
+                "message": admin_msg,
+                "date": notif_time,
+                "read": False,
+                "created_at": datetime.utcnow()
+            }
+            try:
+                await notifications_col.insert_many([cust_notif, admin_notif])
+            except Exception as e:
+                print("Failed to save update notifications in DB:", e)
+                
     return {"message": "Order updated successfully"}

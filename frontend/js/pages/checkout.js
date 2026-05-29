@@ -323,31 +323,6 @@ async function placeOrder() {
     // Save order ID so order-tracking page can read it
     localStorage.setItem('last_order_id', formattedOrderId);
 
-    // Save a notification
-    let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-    
-    // Customer notification
-    notifications.unshift({
-      notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-      id: `#${orderId}`,
-      userEmail: userEmail,
-      message: `Your order #${orderId} was placed successfully! It will be delivered on ${deliveryDateString}.`,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-      read: false
-    });
-
-    // Admin alert notification
-    notifications.unshift({
-      notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-      id: `#${orderId}`,
-      userEmail: 'admin',
-      message: `New Order placed: #${orderId} by ${address.firstName} ${address.lastName} (Customer email: ${userEmail || 'Guest'}). Total: ${formattedTotal}`,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-      read: false
-    });
-
-    localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-
     // Clear Cart
     localStorage.removeItem('aqua_cart');
     

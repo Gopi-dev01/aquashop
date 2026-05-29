@@ -144,10 +144,9 @@ function initAdminTabs() {
         const badge = document.getElementById('sidebar-admin-notif-count');
         if (badge) badge.style.display = 'none';
 
-        let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-        notifications = notifications.map(n => n.userEmail === 'admin' ? { ...n, read: true } : n);
-        localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-        populateNotificationsTable();
+        NotificationAPI.readAll(true)
+          .then(() => populateNotificationsTable())
+          .catch(err => console.error("Failed to mark admin notifications read:", err));
       }
 
       // If subscribers tab is clicked, populate table
@@ -406,33 +405,6 @@ function initDeleteConfirmModal() {
           }
 
           await OrderAPI.update(orderToDeleteId, updates);
-
-          // Only log cancellation notifications/alerts if the order was not already cancelled and not delivered!
-          if (!wasAlreadyCancelled && !isDelivered) {
-            const customerEmail = matchedOrder.userEmail || (matchedOrder.address && matchedOrder.address.email) || "";
-            let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-            
-            if (customerEmail) {
-              notifications.unshift({
-                notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-                id: orderToDeleteId,
-                userEmail: customerEmail,
-                message: `Your order ${orderToDeleteId} has been cancelled by Admin.`,
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' })
-              });
-            }
-
-            notifications.unshift({
-              notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-              id: orderToDeleteId,
-              userEmail: 'admin',
-              message: `Order ${orderToDeleteId} cancelled by Admin (Customer: ${customerEmail || 'Guest'}).`,
-              date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-              read: false
-            });
-
-            localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-          }
 
           await loadAdminData();
           closeModal('delete-confirm-modal');
@@ -760,60 +732,6 @@ window.toggleOrderDelivered = async function(orderId, isChecked) {
         return;
       }
       await OrderAPI.update(orderId, { status: isChecked ? 'Delivered' : 'In Transit' });
-
-      // Create notifications/alerts
-      const customerEmail = matchedOrder.userEmail || (matchedOrder.address && matchedOrder.address.email) || "";
-      let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-
-      const nowStr = new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      if (isChecked) {
-        if (customerEmail) {
-          notifications.unshift({
-            notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-            id: orderId,
-            userEmail: customerEmail,
-            message: `Your order ${orderId} has been successfully delivered. Thank you for shopping with AquaShop!`,
-            date: nowStr,
-            read: false
-          });
-        }
-        notifications.unshift({
-          notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-          id: orderId,
-          userEmail: 'admin',
-          message: `Order ${orderId} marked as DELIVERED by Delivery Personnel/Admin.`,
-          date: nowStr,
-          read: false
-        });
-      } else {
-        if (customerEmail) {
-          notifications.unshift({
-            notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-            id: orderId,
-            userEmail: customerEmail,
-            message: `Your order ${orderId} status has been updated to In Transit.`,
-            date: nowStr,
-            read: false
-          });
-        }
-        notifications.unshift({
-          notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-          id: orderId,
-          userEmail: 'admin',
-          message: `Order ${orderId} status reverted to In Transit.`,
-          date: nowStr,
-          read: false
-        });
-      }
-
-      localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
       await loadAdminData();
       showAdminToast(isChecked ? '📦 Order marked as Delivered!' : '🔄 Order status set to In Transit.');
     }
@@ -1215,14 +1133,18 @@ function populateUsersDropdown() {
 }
 
 // Populate sent notifications history (Filtered for admin alerts)
-function populateNotificationsTable() {
+async function populateNotificationsTable() {
   const historyBody = document.getElementById('notif-history-body');
   const countEl = document.getElementById('notif-history-count');
   if (!historyBody) return;
 
-  let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-  // Filter notifications for admin alerts
-  let adminAlerts = notifications.filter(n => n.userEmail === 'admin');
+  let adminAlerts = [];
+  try {
+    const res = await NotificationAPI.getAll(true);
+    adminAlerts = res.notifications || [];
+  } catch (err) {
+    console.error("Failed to load admin notifications from DB:", err);
+  }
 
   // Render badge for unread alerts
   const badge = document.getElementById('sidebar-admin-notif-count');
@@ -1234,10 +1156,12 @@ function populateNotificationsTable() {
       // If the admin is actively viewing notifications, mark any incoming notifications as read automatically
       const hasUnread = adminAlerts.some(n => !n.read);
       if (hasUnread) {
-        notifications = notifications.map(n => n.userEmail === 'admin' ? { ...n, read: true } : n);
-        localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-        // Update local adminAlerts
-        adminAlerts = notifications.filter(n => n.userEmail === 'admin');
+        try {
+          await NotificationAPI.readAll(true);
+          adminAlerts.forEach(n => n.read = true);
+        } catch (e) {
+          console.error("Failed to mark admin notifications read on active view:", e);
+        }
       }
     }
 
@@ -1293,7 +1217,7 @@ function populateNotificationsTable() {
 }
 
 // Send Admin Notification handler
-window.sendAdminNotification = function(event) {
+window.sendAdminNotification = async function(event) {
   event.preventDefault();
 
   const recipientSelect = document.getElementById('notif-recipient-select');
@@ -1308,67 +1232,52 @@ window.sendAdminNotification = function(event) {
     return;
   }
 
-  const notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-  const nowStr = new Date().toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-
-  if (recipientVal === 'all') {
-    // Broadcast notification: duplicate for every system user email
-    if (SYSTEM_USERS && SYSTEM_USERS.length > 0) {
-      SYSTEM_USERS.forEach(u => {
-        notifications.unshift({
-          notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-          id: '',
-          userEmail: u.email,
-          message: message,
-          date: nowStr,
-          read: false
+  try {
+    if (recipientVal === 'all') {
+      // Broadcast notification: duplicate for every system user email
+      if (SYSTEM_USERS && SYSTEM_USERS.length > 0) {
+        const promises = SYSTEM_USERS.map(u => 
+          NotificationAPI.create({
+            userEmail: u.email,
+            message: message
+          })
+        );
+        await Promise.all(promises);
+      } else {
+        // Fallback in case SYSTEM_USERS is empty
+        await NotificationAPI.create({
+          userEmail: 'all',
+          message: message
         });
-      });
+      }
     } else {
-      // Fallback in case SYSTEM_USERS is empty
-      notifications.unshift({
-        notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-        id: '',
-        userEmail: 'all',
-        message: message,
-        date: nowStr,
-        read: false
+      // Direct notification
+      await NotificationAPI.create({
+        userEmail: recipientVal,
+        message: message
       });
     }
-  } else {
-    // Direct notification
-    notifications.unshift({
-      notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-      id: '',
-      userEmail: recipientVal,
-      message: message,
-      date: nowStr,
-      read: false
-    });
+
+    // Show success toast, completely reset the form and refresh table
+    showAdminToast('✅ Message sent successfully!');
+    document.getElementById('admin-notif-form').reset();
+    await populateNotificationsTable();
+  } catch (err) {
+    console.error("Failed to send admin notification:", err);
+    showAdminToast('❌ Failed to send notification: ' + err.message, 'error');
   }
-
-  localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-
-  // Show success toast, completely reset the form and refresh table
-  showAdminToast('✅ Message sent successfully!');
-  document.getElementById('admin-notif-form').reset();
-  populateNotificationsTable();
 };
 
 // Retract/Delete sent notification
-window.deleteAdminNotification = function(notifId) {
-  let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-  notifications = notifications.filter(n => n.notifId !== notifId);
-  localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-
-  populateNotificationsTable();
-  showAdminToast(`🗑️ Alert cleared successfully!`, 'error');
+window.deleteAdminNotification = async function(notifId) {
+  try {
+    await NotificationAPI.delete(notifId);
+    await populateNotificationsTable();
+    showAdminToast(`🗑️ Alert cleared successfully!`, 'error');
+  } catch (err) {
+    console.error("Failed to delete admin notification:", err);
+    showAdminToast('❌ Failed to clear alert: ' + err.message, 'error');
+  }
 };
 
 // Listen for local storage changes from other tabs (e.g. order placed, cancelled or newsletter subscribed)

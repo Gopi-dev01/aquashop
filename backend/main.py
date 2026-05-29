@@ -18,6 +18,7 @@ from routes.cart     import router as cart_router
 from routes.wishlist import router as wishlist_router
 from routes.orders   import router as orders_router
 from routes.checkout import router as checkout_router
+from routes.notifications import router as notifications_router
 # from routes.user     import router as user_router
 
 # ── APP ──
@@ -50,6 +51,7 @@ app.include_router(cart_router)
 app.include_router(wishlist_router)
 app.include_router(orders_router)
 app.include_router(checkout_router)
+app.include_router(notifications_router)
 # app.include_router(user_router)
 
 # ── HEALTH CHECK ──

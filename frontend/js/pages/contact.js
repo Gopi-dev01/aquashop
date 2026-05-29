@@ -106,18 +106,6 @@ async function sendMessage() {
 
     if (!emailRes.ok) throw new Error('Email service failed');
 
-    // Save admin alert in localStorage
-    let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-    notifications.unshift({
-      notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-      id: '',
-      userEmail: 'admin',
-      message: `New message from ${firstName} ${lastName} (${email}): "${message.substring(0, 60)}${message.length > 60 ? '...' : ''}" (Subject: ${subject})`,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-      read: false
-    });
-    localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-
     // Show success
     document.getElementById('contact-form').style.display = 'none';
     document.getElementById('success-msg').classList.add('show');

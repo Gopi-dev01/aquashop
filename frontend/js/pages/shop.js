@@ -450,11 +450,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.resetSessionData = function() {
-  if (confirm('Are you sure you want to reset all session data? This will clear your cart, active orders, and notifications.')) {
+  if (confirm('Are you sure you want to reset all session data? This will clear your cart, active orders, and wishlist.')) {
     localStorage.removeItem('aqua_cart');
     localStorage.removeItem('aqua_orders');
     localStorage.removeItem('last_order_id');
-    localStorage.removeItem('aqua_notifications');
     localStorage.removeItem('aqua_wishlist');
     alert('Session data cleared successfully!');
     window.location.reload();

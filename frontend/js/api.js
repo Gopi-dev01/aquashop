@@ -111,3 +111,13 @@ const UserAPI = {
 const ContactAPI = {
   send: (payload) => request('/contact', 'POST', payload)
 };
+
+/* ══════════════════════════════
+   NOTIFICATIONS
+   ══════════════════════════════ */
+const NotificationAPI = {
+  getAll: (adminView = false) => request(`/notifications${adminView ? '?admin_view=true' : ''}`),
+  create: (payload) => request('/notifications', 'POST', payload),
+  delete: (id) => request(`/notifications/${encodeURIComponent(id)}`, 'DELETE'),
+  readAll: (isAdmin = false) => request(isAdmin ? '/notifications/admin-read-all' : '/notifications/read-all', 'PUT')
+};

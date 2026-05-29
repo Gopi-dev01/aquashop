@@ -8,7 +8,7 @@ from typing import Optional
 from datetime import datetime
 from bson import ObjectId
 
-from config import contact_col
+from config import contact_col, notifications_col
 from utils.auth import get_current_user
 
 router = APIRouter(prefix="/contact", tags=["Contact"])
@@ -63,6 +63,24 @@ async def send_contact(payload: ContactMessage):
         "created_at": datetime.utcnow(),
     }
     await contact_col.insert_one(doc)
+    
+    # Create DB notification for admin
+    import uuid
+    notif_time = datetime.now().strftime("%b %d, %Y, %I:%M %p")
+    admin_notif = {
+        "notifId": f"notif-{uuid.uuid4().hex[:9]}-{int(datetime.utcnow().timestamp() * 1000)}",
+        "id": "",
+        "userEmail": "admin",
+        "message": f"New message from {payload.name} ({payload.email}): \"{payload.message[:60] + ('...' if len(payload.message) > 60 else '')}\" (Subject: {payload.subject})",
+        "date": notif_time,
+        "read": False,
+        "created_at": datetime.utcnow()
+    }
+    try:
+        await notifications_col.insert_one(admin_notif)
+    except Exception as e:
+        print("Failed to save contact notification in DB:", e)
+        
     return {"message": "Your message has been sent! We'll reply within 24 hours."}
 
 

@@ -35,21 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (notifBadge) {
                     notifBadge.style.display = 'none';
                 }
-                const userJson = localStorage.getItem('aqua_user');
-                let loggedInEmail = '';
-                if (userJson) {
-                    try {
-                        loggedInEmail = JSON.parse(userJson).email;
-                    } catch(e) {}
-                }
-                const lowerEmail = loggedInEmail ? loggedInEmail.toLowerCase().trim() : '';
-
-                let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-                notifications = notifications.map(n => {
-                    const isMatch = n.userEmail && n.userEmail.toLowerCase().trim() === lowerEmail;
-                    return isMatch ? { ...n, read: true } : n;
-                });
-                localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
+                NotificationAPI.readAll(false)
+                    .then(() => {
+                        loadDashboardData();
+                    })
+                    .catch(err => console.error("Error marking all read:", err));
             }
         });
     });
@@ -373,31 +363,13 @@ async function loadDashboardData() {
 
 
 
-    // 3. Load Notifications
     const notificationsList = document.querySelector('.notifications-list');
-    let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-    
-    // Assign a unique notifId and default email to legacy notifications
-    let updatedNotifs = false;
-    notifications.forEach(n => {
-        if (!n.notifId) {
-            n.notifId = `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
-            updatedNotifs = true;
-        }
-        if (!n.userEmail) {
-            n.userEmail = loggedInEmail || 'guest';
-            updatedNotifs = true;
-        }
-    });
-    if (updatedNotifs) {
-        localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-    }
-
-    // Filter to only display notifications for this user (case-insensitively)
     let userNotifications = [];
-    if (loggedInEmail) {
-        const lowerEmail = loggedInEmail.toLowerCase().trim();
-        userNotifications = notifications.filter(n => n.userEmail && n.userEmail.toLowerCase().trim() === lowerEmail);
+    try {
+        const res = await NotificationAPI.getAll();
+        userNotifications = res.notifications || [];
+    } catch (e) {
+        console.error("Failed to load notifications from DB:", e);
     }
 
     // Update badge in sidebar for unread notifications
@@ -633,38 +605,6 @@ window.cancelOrder = function(orderId) {
         onConfirm: async () => {
             try {
                 await OrderAPI.cancel(orderId);
-                
-                // Get logged-in email
-                const userJson = localStorage.getItem('aqua_user');
-                let email = '';
-                if (userJson) {
-                    try { email = JSON.parse(userJson).email; } catch(e) {}
-                }
-
-                let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-                
-                // Customer notification
-                notifications.unshift({
-                    notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-                    id: orderId,
-                    userEmail: email,
-                    message: `Your order ${orderId} has been cancelled.`,
-                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-                    read: false
-                });
-
-                // Admin alert notification
-                notifications.unshift({
-                    notifId: `notif-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`,
-                    id: orderId,
-                    userEmail: 'admin',
-                    message: `Order cancelled by customer: ${orderId} (${email || 'Guest'}).`,
-                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-                    read: false
-                });
-
-                localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-
                 await loadDashboardData();
             } catch (err) {
                 console.error("Failed to cancel order:", err);
@@ -776,11 +716,14 @@ window.deleteNotification = function(notifId) {
                 card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
                 card.style.opacity = '0';
                 card.style.transform = 'translateX(30px)';
-                setTimeout(() => {
-                    let notifications = JSON.parse(localStorage.getItem('aqua_notifications') || '[]');
-                    notifications = notifications.filter(n => n.notifId !== notifId);
-                    localStorage.setItem('aqua_notifications', JSON.stringify(notifications));
-                    loadDashboardData();
+                setTimeout(async () => {
+                    try {
+                        await NotificationAPI.delete(notifId);
+                        await loadDashboardData();
+                    } catch (err) {
+                        console.error("Failed to delete notification:", err);
+                        alert("Failed to delete notification: " + err.message);
+                    }
                 }, 300);
             }
         }

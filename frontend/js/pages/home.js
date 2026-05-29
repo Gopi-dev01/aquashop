@@ -13,7 +13,6 @@
     localStorage.removeItem('aqua_cart');
     localStorage.removeItem('aqua_wishlist');
     localStorage.removeItem('last_order_id');
-    localStorage.removeItem('aqua_notifications');
     localStorage.setItem('aqua_token', googleToken);
     window.history.replaceState({}, '', window.location.pathname);
   } else if (!token) {
