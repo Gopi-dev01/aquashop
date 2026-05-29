@@ -189,7 +189,7 @@ async function loadAdminData() {
   }
 
   const adminVisibleOrders = orders.filter(o => !o.hiddenAdmin);
-  const activeOrders = adminVisibleOrders.filter(o => o.status !== 'Cancelled');
+  const activeOrders = adminVisibleOrders.filter(o => (o.status || '').toLowerCase() !== 'cancelled');
   const totalOrders = activeOrders.length;
   document.getElementById('dash-total-orders').textContent = totalOrders.toLocaleString();
 
@@ -199,7 +199,7 @@ async function loadAdminData() {
   // 1. Dynamic Total Revenue
   const baseRevenue = 0;
   const ordersRevenue = orders
-    .filter(o => o.status !== 'Cancelled')
+    .filter(o => (o.status || '').toLowerCase() !== 'cancelled')
     .reduce((sum, o) => {
       let val = 0;
       if (typeof o.total === 'string') {
@@ -217,7 +217,7 @@ async function loadAdminData() {
 
   // Today's Earned Revenue
   const todayRevenue = orders
-    .filter(o => o.status !== 'Cancelled' && o.date === todayFormatted)
+    .filter(o => (o.status || '').toLowerCase() !== 'cancelled' && o.date === todayFormatted)
     .reduce((sum, o) => {
       let val = 0;
       if (typeof o.total === 'string') {
@@ -396,8 +396,8 @@ function initDeleteConfirmModal() {
       } else if (orderToDeleteId) {
         try {
           const matchedOrder = await OrderAPI.getById(orderToDeleteId);
-          const wasAlreadyCancelled = matchedOrder && matchedOrder.status === 'Cancelled';
-          const isDelivered = matchedOrder && matchedOrder.status === 'Delivered';
+          const wasAlreadyCancelled = matchedOrder && (matchedOrder.status || '').toLowerCase() === 'cancelled';
+          const isDelivered = matchedOrder && (matchedOrder.status || '').toLowerCase() === 'delivered';
 
           const updates = { hiddenAdmin: true };
           if (!isDelivered) {

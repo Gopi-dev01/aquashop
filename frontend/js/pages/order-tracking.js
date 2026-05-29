@@ -219,9 +219,10 @@ async function loadOrderData() {
   if (statusBadgeEl && order.status) {
     statusBadgeEl.textContent = order.status;
     statusBadgeEl.className = 'status-badge'; // reset
-    if (order.status === 'Delivered') {
+    const statusLower = order.status.toLowerCase();
+    if (statusLower === 'delivered') {
       statusBadgeEl.classList.add('success');
-    } else if (order.status === 'Cancelled') {
+    } else if (statusLower === 'cancelled') {
       statusBadgeEl.classList.add('cancelled');
     }
   }
@@ -229,7 +230,7 @@ async function loadOrderData() {
   // 3b. Update timeline steps dynamically based on order status
   const steps = document.querySelectorAll('.timeline .step');
   if (steps.length >= 5) {
-    if (order.status === 'Delivered') {
+    if (order.status && order.status.toLowerCase() === 'delivered') {
       // Set all steps to completed
       steps.forEach((step, idx) => {
         step.classList.remove('pending');

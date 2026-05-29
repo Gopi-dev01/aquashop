@@ -274,20 +274,20 @@ async function loadDashboardData() {
                     badgeClass = 'pending';
                 }
 
-                if (order.status === 'Cancelled') {
+                if ((order.status || '').toLowerCase() === 'cancelled') {
                     paymentLabel = 'Cancelled';
                     badgeClass = 'cancelled';
                 }
 
                 let deliveryBadgeClass = 'pending';
-                if (order.status === 'Delivered') {
+                if ((order.status || '').toLowerCase() === 'delivered') {
                     deliveryBadgeClass = 'success';
-                } else if (order.status === 'Cancelled') {
+                } else if ((order.status || '').toLowerCase() === 'cancelled') {
                     deliveryBadgeClass = 'cancelled';
                 }
 
                 let actionsHtml = '';
-                if (order.status === 'Cancelled') {
+                if ((order.status || '').toLowerCase() === 'cancelled') {
                     actionsHtml = `
                       <div class="order-header-payment">Payment: <strong>${paymentMethodName}</strong></div>
                       <button class="btn-delete-order" title="Delete Order Record" onclick="deleteOrder('${order.id}')">
